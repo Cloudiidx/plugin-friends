@@ -55,7 +55,7 @@ export default class FriendCommand extends Command {
           key: 'argument',
           label: 'user or type',
           prompt: 'Please provide a valid argument for the used subcommand.',
-          default: -1,
+          default: '',
           type: 'user|string'
         }
       ]
