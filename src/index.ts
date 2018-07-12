@@ -6,8 +6,8 @@ import { onMessage } from './lib/Events'
 export class Plugin {
   public static client: CommandoClient
   public static config: Config
-  public static id = 'Plugin Template'
-  public static description = 'A template plugin'
+  public static id = 'Plugin Friends'
+  public static description = 'A friends plugin'
   public static commandGroups = [
     [ 'friends', 'Friends' ]
     // If you need to make command groups for the plugin's commands,
