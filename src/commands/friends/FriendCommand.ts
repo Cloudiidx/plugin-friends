@@ -78,7 +78,7 @@ export default class FriendCommand extends Command {
         return this.acceptFriendRequest(msg, argument)
 
       case 'remove' || 'delete':
-        return this.deleteFriendRequest(msg, argument)
+        return this.deleteFriend(msg, argument)
 
       case 'list':
         return this.listFriends(msg, argument)
@@ -128,7 +128,7 @@ export default class FriendCommand extends Command {
     return msg.reply('This command is not ready yet.')
   }
 
-  async deleteFriendRequest(
+  async deleteFriend(
     msg: CommandMessage,
     argument: User | 'incoming' | 'outgoing'
   ): Promise<Message | Message[]> {
