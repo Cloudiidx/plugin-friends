@@ -17,6 +17,7 @@ import { Message, User } from 'discord.js'
 import { oneLine } from 'common-tags'
 import { User as NightwatchUser } from '@nightwatch/db'
 import axios from 'axios'
+import { Logger } from '../../../node_modules/@nightwatch/util'
 
 export default class FriendCommand extends Command {
   constructor(client: CommandoClient) {
@@ -104,10 +105,12 @@ export default class FriendCommand extends Command {
       )
     }
 
-    await axios.post(
-      `http://localhost:5000/api/users/${receiver.id}/friends/requests`,
-      { user: sender, receiver: receiver }
-    )
+    await axios
+      .post(`http://localhost:5000/api/users/${receiver.id}/friends/requests`, {
+        user: sender,
+        receiver: receiver
+      })
+      .catch(Logger.error)
 
     return msg.reply(`Sent a friend request to **${receiver.name}**.`)
   }
@@ -154,9 +157,9 @@ export default class FriendCommand extends Command {
 
   async getApiUser(user: any): Promise<NightwatchUser | null> {
     if (user instanceof User) {
-      const response = await axios.get(
-        `http://localhost:5000/api/users/${user.id}`
-      )
+      const response = await axios
+        .get(`http://localhost:5000/api/users/${user.id}`)
+        .catch(Logger.error)
 
       return response.data
     }
