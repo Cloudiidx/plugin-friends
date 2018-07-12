@@ -71,6 +71,21 @@ export default class FriendCommand extends Command {
       case 'add':
         return this.sendFriendRequest(msg, argument)
 
+      case 'deny' || 'decline':
+        return this.denyFriendRequest(msg, argument)
+
+      case 'accept':
+        return this.acceptFriendRequest(msg, argument)
+
+      case 'remove' || 'delete':
+        return this.deleteFriendRequest(msg, argument)
+
+      case 'list':
+        return this.listFriends(msg, argument)
+
+      case 'requests':
+        return this.listFriendRequests(msg, argument)
+
       default:
         return msg.reply(`\`${subcommand}\` is not a valid subcommand.`)
     }
@@ -95,6 +110,46 @@ export default class FriendCommand extends Command {
     )
 
     return msg.reply(`Sent a friend request to **${receiver.name}**.`)
+  }
+
+  async denyFriendRequest(
+    msg: CommandMessage,
+    argument: User | 'incoming' | 'outgoing'
+  ): Promise<Message | Message[]> {
+    // TODO: Delete friend request using API.
+    return msg.reply('This command is not ready yet.')
+  }
+
+  async acceptFriendRequest(
+    msg: CommandMessage,
+    argument: User | 'incoming' | 'outgoing'
+  ): Promise<Message | Message[]> {
+    // TODO: Create friend using API (no need to delete the request).
+    return msg.reply('This command is not ready yet.')
+  }
+
+  async deleteFriendRequest(
+    msg: CommandMessage,
+    argument: User | 'incoming' | 'outgoing'
+  ): Promise<Message | Message[]> {
+    // TODO: Delete friend using API.
+    return msg.reply('This command is not ready yet.')
+  }
+
+  async listFriends(
+    msg: CommandMessage,
+    argument: User | 'incoming' | 'outgoing'
+  ): Promise<Message | Message[]> {
+    // TODO: List friends using API.
+    return msg.reply('This command is not ready yet.')
+  }
+
+  async listFriendRequests(
+    msg: CommandMessage,
+    argument: User | 'incoming' | 'outgoing'
+  ): Promise<Message | Message[]> {
+    // TODO: List friend requests using API.
+    return msg.reply('This command is not ready yet.')
   }
 
   async getApiUser(user: any): Promise<NightwatchUser | null> {
