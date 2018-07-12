@@ -1,7 +1,5 @@
 /*
 
-friend add @Joker#3650
-
 friend accept @Joker#3650
 
 friend deny/decline @Joker#3650
