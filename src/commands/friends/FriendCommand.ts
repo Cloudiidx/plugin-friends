@@ -54,7 +54,7 @@ export default class FriendCommand extends Command {
         {
           key: 'argument',
           label: 'user or type',
-          prompt: 'Please provide a valid argument for the used subcommand.',
+          prompt: 'Please provide a valid argument for the used action.',
           default: '',
           type: 'filter'
         }
