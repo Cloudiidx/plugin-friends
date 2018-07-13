@@ -84,31 +84,40 @@ export default class FriendCommand extends Command {
       }
     } catch (err) {
       Logger.error(err)
-      return msg.reply('Failed to create friend request.')
+      return msg.reply('Failed to send friend request.')
     }
   }
 
   async sendFriendRequest (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
+    if (!user) {
+      return msg.reply('You need to specify a user to send a friend request to. It can be a mention or their ID.')
+    }
+
     const receiver = await getApiUser(user instanceof User ? user.id : user)
     const sender = await getApiUser(msg.author.id)
 
     if (!receiver || !sender) {
-      return msg.reply('This command requires you to specify a user. Please try again.')
+      return msg.reply('Failed to retrieve user data from API.')
     }
 
-    const { data: friendRequest } = await axios.post(
-      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests?token=${Plugin.config.api.token}`,
-      {
-        user: sender,
-        receiver
+    try {
+      const { data: friendRequest } = await axios.post(
+        `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests?token=${Plugin.config.api.token}`,
+        {
+          user: sender,
+          receiver
+        }
+      )
+
+      if (!friendRequest) {
+        return msg.reply(`**${receiver.name}** has already sent you a friend request.`)
       }
-    )
 
-    if (!friendRequest) {
-      return msg.reply(`**${receiver.name}** has already sent you a friend request.`)
+      return msg.reply(`Sent a friend request to **${receiver.name}**.`)
+    } catch (err) {
+      Logger.error(err)
+      return msg.reply(`Failed to send friend request to **${receiver.name}**. Have you already sent one to them?`)
     }
-
-    return msg.reply(`Sent a friend request to **${receiver.name}**.`)
   }
 
   async denyFriendRequest (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
