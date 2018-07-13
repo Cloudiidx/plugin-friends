@@ -13,11 +13,12 @@ friend requests [incoming/outgoing]
 */
 
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
-import { Message, User } from 'discord.js'
+import { Message, User, GuildMember } from 'discord.js'
 import { oneLine } from 'common-tags'
-import { User as NightwatchUser } from '@nightwatch/db'
+import { User as BotUser } from '@nightwatch/db'
+import { Logger } from '@nightwatch/util'
+import { Plugin } from '../../index'
 import axios from 'axios'
-import { Logger } from '../../../node_modules/@nightwatch/util'
 
 export default class FriendCommand extends Command {
   constructor(client: CommandoClient) {
@@ -43,8 +44,8 @@ export default class FriendCommand extends Command {
       ],
       args: [
         {
-          key: 'subcommand',
-          label: 'sub-command',
+          key: 'action',
+          label: 'action',
           prompt:
             'Would you like to `add/remove/list` friends, `accept/deny` requests, or list `requests`?',
           type: 'string',
@@ -55,7 +56,7 @@ export default class FriendCommand extends Command {
           label: 'user or type',
           prompt: 'Please provide a valid argument for the used subcommand.',
           default: '',
-          type: 'user|string'
+          type: 'filter'
         }
       ]
     })
@@ -64,60 +65,80 @@ export default class FriendCommand extends Command {
   async run(
     msg: CommandMessage,
     {
-      subcommand,
+      action,
       argument
-    }: { subcommand: string; argument: User | 'incoming' | 'outgoing' }
+    }: { action: string; argument: User | 'incoming' | 'outgoing' }
   ): Promise<Message | Message[]> {
-    switch (subcommand.toLowerCase()) {
-      case 'add':
-        return this.sendFriendRequest(msg, argument)
+    try {
+      switch (action.toLowerCase()) {
+        case 'add':
+          return this.sendFriendRequest(msg, argument as User)
 
-      case 'deny' || 'decline':
-        return this.denyFriendRequest(msg, argument)
+        case 'deny' || 'decline':
+          return this.denyFriendRequest(msg, argument as User)
 
-      case 'accept':
-        return this.acceptFriendRequest(msg, argument)
+        case 'accept':
+          return this.acceptFriendRequest(msg, argument as User)
 
-      case 'remove' || 'delete':
-        return this.deleteFriend(msg, argument)
+        case 'remove' || 'delete':
+          return this.deleteFriend(msg, argument as User)
 
-      case 'list':
-        return this.listFriends(msg, argument)
+        case 'list':
+          return this.listFriends(msg, argument as User)
 
-      case 'requests':
-        return this.listFriendRequests(msg, argument)
+        case 'requests':
+          return this.listFriendRequests(msg, argument as
+            | 'incoming'
+            | 'outgoing')
 
-      default:
-        return msg.reply(`\`${subcommand}\` is not a valid subcommand.`)
+        default:
+          return msg.reply(`\`${action}\` is not a valid action.`)
+      }
+    } catch (err) {
+      Logger.error(err)
+      return msg.reply('Failed to create friend request.')
     }
   }
 
   async sendFriendRequest(
     msg: CommandMessage,
-    argument: User | 'incoming' | 'outgoing'
+    user: User
   ): Promise<Message | Message[]> {
-    const receiver = await this.getApiUser(argument)
-    const sender = await this.getApiUser(msg.author)
+    const receiver = await this.getApiUser(user.id)
+    const sender = await this.getApiUser(msg.author.id)
 
-    if (receiver === null) {
+    if (!receiver || !sender) {
       return msg.reply(
         'This command requires you to specify a user. Please try again.'
       )
     }
 
-    await axios
-      .post(`http://localhost:5000/api/users/${receiver.id}/friends/requests`, {
+    const { data: friendRequest } = await axios.post(
+      `${Plugin.config.api.address}/users/${receiver.id}/friends/requests?token=${Plugin.config.api.token}`,
+      {
         user: sender,
         receiver: receiver
-      })
-      .catch(Logger.error)
+      }
+    )
+
+    if (!friendRequest) {
+      const member = msg.guild.members.get(receiver.id)
+
+      if (!member) {
+        return msg.reply('That member is not in this guild.')
+      }
+
+      return msg.reply(
+        `${member.nickname} has already sent you a friend request.`
+      )
+    }
 
     return msg.reply(`Sent a friend request to **${receiver.name}**.`)
   }
 
   async denyFriendRequest(
     msg: CommandMessage,
-    argument: User | 'incoming' | 'outgoing'
+    user: User
   ): Promise<Message | Message[]> {
     // TODO: Delete friend request using API.
     return msg.reply('This command is not ready yet.')
@@ -125,7 +146,7 @@ export default class FriendCommand extends Command {
 
   async acceptFriendRequest(
     msg: CommandMessage,
-    argument: User | 'incoming' | 'outgoing'
+    user: User
   ): Promise<Message | Message[]> {
     // TODO: Create friend using API (no need to delete the request).
     return msg.reply('This command is not ready yet.')
@@ -133,7 +154,7 @@ export default class FriendCommand extends Command {
 
   async deleteFriend(
     msg: CommandMessage,
-    argument: User | 'incoming' | 'outgoing'
+    user: User
   ): Promise<Message | Message[]> {
     // TODO: Delete friend using API.
     return msg.reply('This command is not ready yet.')
@@ -141,7 +162,7 @@ export default class FriendCommand extends Command {
 
   async listFriends(
     msg: CommandMessage,
-    argument: User | 'incoming' | 'outgoing'
+    user: User
   ): Promise<Message | Message[]> {
     // TODO: List friends using API.
     return msg.reply('This command is not ready yet.')
@@ -149,21 +170,18 @@ export default class FriendCommand extends Command {
 
   async listFriendRequests(
     msg: CommandMessage,
-    argument: User | 'incoming' | 'outgoing'
+    argument: 'incoming' | 'outgoing'
   ): Promise<Message | Message[]> {
     // TODO: List friend requests using API.
     return msg.reply('This command is not ready yet.')
   }
 
-  async getApiUser(user: any): Promise<NightwatchUser | null> {
-    if (user instanceof User) {
-      const response = await axios
-        .get(`http://localhost:5000/api/users/${user.id}`)
-        .catch(Logger.error)
-
-      return response.data
-    }
-
-    return null
+  async getApiUser(id: string): Promise<BotUser | undefined> {
+    const { data } = await axios.get(
+      `${Plugin.config.api.address}/users/${id}?token=${
+        Plugin.config.api.token
+      }`
+    )
+    return data
   }
 }
