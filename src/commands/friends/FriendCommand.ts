@@ -170,20 +170,10 @@ export default class FriendCommand extends Command {
   }
 
   async getApiUser(user: string | User): Promise<BotUser | undefined> {
-    if (user instanceof User) {
-      const { data } = await axios.get(
-        `${Plugin.config.api.address}/users/${user.id}?token=${
-          Plugin.config.api.token
-        }`
-      )
-
-      return data
-    }
-
     const { data } = await axios.get(
-      `${Plugin.config.api.address}/users/${user}?token=${
-        Plugin.config.api.token
-      }`
+      `${Plugin.config.api.address}/users/${
+        user instanceof User ? user.id : user
+      }?token=${Plugin.config.api.token}`
     )
 
     return data
