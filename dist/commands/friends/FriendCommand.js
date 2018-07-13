@@ -83,9 +83,9 @@ class FriendCommand extends discord_js_commando_1.Command {
         if (!receiver || !sender) {
             return msg.reply('This command requires you to specify a user. Please try again.');
         }
-        const { data: friendRequest } = await axios_1.default.post(`${index_1.Plugin.config.api.address}/users/${receiver.id}/friends/requests?token=${index_1.Plugin.config.api.token}`, {
+        const { data: friendRequest } = await axios_1.default.post(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests?token=${index_1.Plugin.config.api.token}`, {
             user: sender,
-            receiver: receiver
+            receiver
         });
         if (!friendRequest) {
             return msg.reply(`**${receiver.name}** has already sent you a friend request.`);
