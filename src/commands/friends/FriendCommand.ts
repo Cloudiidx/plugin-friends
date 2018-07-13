@@ -15,7 +15,7 @@ friend requests [incoming/outgoing]
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
 import { Message, User, GuildMember } from 'discord.js'
 import { oneLine } from 'common-tags'
-import { User as BotUser } from '@nightwatch/db'
+import { User as BotUser, UserFriendRequest } from '@nightwatch/db'
 import { Logger } from '@nightwatch/util'
 import { Plugin } from '../../index'
 import axios from 'axios'
@@ -101,14 +101,18 @@ export default class FriendCommand extends Command {
     msg: CommandMessage,
     user: User | string
   ): Promise<Message | Message[]> {
-    const receiver = await getApiUser(
-      user instanceof User ? user.id : user
-    )
+    const receiver = await getApiUser(user instanceof User ? user.id : user)
     const sender = await getApiUser(msg.author.id)
 
     if (!receiver || !sender) {
       return msg.reply(
         'This command requires you to specify a user. Please try again.'
+      )
+    }
+
+    if (receiver.id === sender.id) {
+      return msg.reply(
+        "You can't send a friend request to yourself. That would be silly."
       )
     }
 
@@ -124,7 +128,9 @@ export default class FriendCommand extends Command {
 
     if (!friendRequest) {
       return msg.reply(
-        `**${receiver.name}** has already sent you a friend request.`
+        `**${
+          receiver.name
+        }** has already sent you a friend request, or you have already sent them one.`
       )
     }
 
@@ -135,8 +141,38 @@ export default class FriendCommand extends Command {
     msg: CommandMessage,
     user: User | string
   ): Promise<Message | Message[]> {
-    // TODO: Delete friend request using API.
-    return msg.reply('This command is not ready yet.')
+    const rejectee = await getApiUser(user instanceof User ? user.id : user)
+    const sender = await getApiUser(msg.author.id)
+
+    if (!rejectee || !sender) {
+      return msg.reply(
+        'This command requires you to specify a user. Please try again.'
+      )
+    }
+
+    const {
+      data: friendRequests
+    }: { data: UserFriendRequest[] } = await axios.get(
+      `${Plugin.config.api.address}/users/${
+        rejectee.id
+      }/friends/requests?token=${Plugin.config.api.token}`
+    )
+
+    for (const friendRequest of friendRequests) {
+      if (friendRequest.user.id === rejectee.id) {
+        axios.delete(
+          `${Plugin.config.api.address}/users/${rejectee.id}/friends/requests/${
+            friendRequest.id
+          }?token=${Plugin.config.api.token}`
+        )
+
+        return msg.reply(
+          `Successfully deleted **${rejectee.name}**'s friend request.`
+        )
+      }
+    }
+
+    return msg.reply(`Couldn't find a friend request from or to that user.`)
   }
 
   async acceptFriendRequest(
