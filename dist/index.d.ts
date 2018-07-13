@@ -5,7 +5,7 @@ export declare class Plugin {
     static config: Config;
     static id: string;
     static description: string;
-    static commandGroups: never[];
+    static commandGroups: string[][];
     /**
      * Initializes plugin
      * @param client

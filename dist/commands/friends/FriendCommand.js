@@ -1,0 +1,121 @@
+"use strict";
+/*
+
+friend accept @Joker#3650
+
+friend deny/decline @Joker#3650
+
+friend remove/delete @Joker#3650
+
+friend list [@Joker#3650]
+
+friend requests [incoming/outgoing]
+
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+const discord_js_commando_1 = require("discord.js-commando");
+const discord_js_1 = require("discord.js");
+const common_tags_1 = require("common-tags");
+const util_1 = require("@nightwatch/util");
+const index_1 = require("../../index");
+const axios_1 = require("axios");
+class FriendCommand extends discord_js_commando_1.Command {
+    constructor(client) {
+        super(client, {
+            name: 'friend',
+            group: 'friends',
+            memberName: 'friend',
+            description: 'Allows you to send and respond to friend requests, as well as list your friends/friend requests.',
+            details: common_tags_1.oneLine `
+        \`friend add <mention|id>\` sends a friend request to that user.\n
+        \`friend accept <mention|id>\` accepts a friend request from that user.\n
+        \`friend deny/decline <mention|id>\` denies a friend request from that user.\n
+        \`friend remove/delete <mention|id>\` removes that user from your friend list.\n
+        \`friend list [mention|id]\` lists all the user's friends, or your own if no user is given.\n
+        \`friend requests [incoming/outgoing]\` lists all of your incoming or outgoing friend requests, respectfully.
+        If no type is specified, it will list both incoming and outgoing friend requests.`,
+            examples: ['friend add @Joker#3650', 'friend deny @Joker#3650', 'friend list', 'friend requests incoming'],
+            args: [
+                {
+                    key: 'action',
+                    label: 'action',
+                    prompt: 'Would you like to `add/remove/list` friends, `accept/deny` requests, or list `requests`?',
+                    type: 'string',
+                    infinite: false
+                },
+                {
+                    key: 'argument',
+                    label: 'user or filter',
+                    prompt: 'Please provide a valid argument for the used action.',
+                    default: '',
+                    type: 'user|string'
+                }
+            ]
+        });
+    }
+    async run(msg, { action, argument }) {
+        try {
+            switch (action.toLowerCase()) {
+                case 'add':
+                    return this.sendFriendRequest(msg, argument);
+                case 'deny' || 'decline':
+                    return this.denyFriendRequest(msg, argument);
+                case 'accept':
+                    return this.acceptFriendRequest(msg, argument);
+                case 'remove' || 'delete':
+                    return this.deleteFriend(msg, argument);
+                case 'list':
+                    return this.listFriends(msg, argument);
+                case 'requests':
+                    return this.listFriendRequests(msg, argument);
+                default:
+                    return msg.reply(`\`${action}\` is not a valid action.`);
+            }
+        }
+        catch (err) {
+            util_1.Logger.error(err);
+            return msg.reply('Failed to create friend request.');
+        }
+    }
+    async sendFriendRequest(msg, user) {
+        const receiver = await getApiUser(user instanceof discord_js_1.User ? user.id : user);
+        const sender = await getApiUser(msg.author.id);
+        if (!receiver || !sender) {
+            return msg.reply('This command requires you to specify a user. Please try again.');
+        }
+        const { data: friendRequest } = await axios_1.default.post(`${index_1.Plugin.config.api.address}/users/${receiver.id}/friends/requests?token=${index_1.Plugin.config.api.token}`, {
+            user: sender,
+            receiver: receiver
+        });
+        if (!friendRequest) {
+            return msg.reply(`**${receiver.name}** has already sent you a friend request.`);
+        }
+        return msg.reply(`Sent a friend request to **${receiver.name}**.`);
+    }
+    async denyFriendRequest(msg, user) {
+        // TODO: Delete friend request using API.
+        return msg.reply('This command is not ready yet.');
+    }
+    async acceptFriendRequest(msg, user) {
+        // TODO: Create friend using API (no need to delete the request).
+        return msg.reply('This command is not ready yet.');
+    }
+    async deleteFriend(msg, user) {
+        // TODO: Delete friend using API.
+        return msg.reply('This command is not ready yet.');
+    }
+    async listFriends(msg, user) {
+        // TODO: List friends using API.
+        return msg.reply('This command is not ready yet.');
+    }
+    async listFriendRequests(msg, argument) {
+        // TODO: List friend requests using API.
+        return msg.reply('This command is not ready yet.');
+    }
+}
+exports.default = FriendCommand;
+async function getApiUser(id) {
+    const { data } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${id}?token=${index_1.Plugin.config.api.token}`);
+    return data;
+}
+//# sourceMappingURL=FriendCommand.js.map

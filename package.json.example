@@ -1,7 +1,7 @@
 {
-  "name": "@nightwatch/plugin-template",
+  "name": "@nightwatch/plugin-friends",
   "version": "1.0.0",
-  "description": "A template plugin for quickly developing a new plugin for the bot.",
+  "description": "Friend system plugin for the bot.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Nightwatch/plugin-template.git"
+    "url": "git+https://github.com/Nightwatch/plugin-friends.git"
   },
   "author": "Tanner Goins",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Nightwatch/plugin-template/issues"
+    "url": "https://github.com/Nightwatch/plugin-friends/issues"
   },
-  "homepage": "https://github.com/Nightwatch/plugin-template#readme",
+  "homepage": "https://github.com/Nightwatch/plugin-friends#readme",
   "devDependencies": {
     "@types/node": "^9.6.1",
     "@types/winston": "^2.3.9",
