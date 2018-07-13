@@ -29,11 +29,11 @@ export default class FriendCommand extends Command {
       description:
         'Allows you to send and respond to friend requests, as well as list your friends/friend requests.',
       details: oneLine`
-        \`friend add <mention>\` sends a friend request to that user.\n
-        \`friend accept <mention>\` accepts a friend request from that user.\n
-        \`friend deny/decline <mention>\` denies a friend request from that user.\n
-        \`friend remove/delete <mention>\` removes that user from your friend list.\n
-        \`friend list [mention]\` lists all the user's friends, or your own if no user is given.\n
+        \`friend add <mention|id>\` sends a friend request to that user.\n
+        \`friend accept <mention|id>\` accepts a friend request from that user.\n
+        \`friend deny/decline <mention|id>\` denies a friend request from that user.\n
+        \`friend remove/delete <mention|id>\` removes that user from your friend list.\n
+        \`friend list [mention|id]\` lists all the user's friends, or your own if no user is given.\n
         \`friend requests [incoming/outgoing]\` lists all of your incoming or outgoing friend requests, respectfully.
         If no type is specified, it will list both incoming and outgoing friend requests.`,
       examples: [
@@ -64,27 +64,24 @@ export default class FriendCommand extends Command {
 
   async run(
     msg: CommandMessage,
-    {
-      action,
-      argument
-    }: { action: string; argument: User | 'incoming' | 'outgoing' }
+    { action, argument }: { action: string; argument: User | string }
   ): Promise<Message | Message[]> {
     try {
       switch (action.toLowerCase()) {
         case 'add':
-          return this.sendFriendRequest(msg, argument as User)
+          return this.sendFriendRequest(msg, argument)
 
         case 'deny' || 'decline':
-          return this.denyFriendRequest(msg, argument as User)
+          return this.denyFriendRequest(msg, argument)
 
         case 'accept':
-          return this.acceptFriendRequest(msg, argument as User)
+          return this.acceptFriendRequest(msg, argument)
 
         case 'remove' || 'delete':
-          return this.deleteFriend(msg, argument as User)
+          return this.deleteFriend(msg, argument)
 
         case 'list':
-          return this.listFriends(msg, argument as User)
+          return this.listFriends(msg, argument)
 
         case 'requests':
           return this.listFriendRequests(msg, argument as
@@ -102,9 +99,9 @@ export default class FriendCommand extends Command {
 
   async sendFriendRequest(
     msg: CommandMessage,
-    user: User
+    user: User | string
   ): Promise<Message | Message[]> {
-    const receiver = await this.getApiUser(user.id)
+    const receiver = await this.getApiUser(user)
     const sender = await this.getApiUser(msg.author.id)
 
     if (!receiver || !sender) {
@@ -114,7 +111,9 @@ export default class FriendCommand extends Command {
     }
 
     const { data: friendRequest } = await axios.post(
-      `${Plugin.config.api.address}/users/${receiver.id}/friends/requests?token=${Plugin.config.api.token}`,
+      `${Plugin.config.api.address}/users/${
+        receiver.id
+      }/friends/requests?token=${Plugin.config.api.token}`,
       {
         user: sender,
         receiver: receiver
@@ -122,14 +121,8 @@ export default class FriendCommand extends Command {
     )
 
     if (!friendRequest) {
-      const member = msg.guild.members.get(receiver.id)
-
-      if (!member) {
-        return msg.reply('That member is not in this guild.')
-      }
-
       return msg.reply(
-        `${member.nickname} has already sent you a friend request.`
+        `**${receiver.name}** has already sent you a friend request.`
       )
     }
 
@@ -138,7 +131,7 @@ export default class FriendCommand extends Command {
 
   async denyFriendRequest(
     msg: CommandMessage,
-    user: User
+    user: User | string
   ): Promise<Message | Message[]> {
     // TODO: Delete friend request using API.
     return msg.reply('This command is not ready yet.')
@@ -146,7 +139,7 @@ export default class FriendCommand extends Command {
 
   async acceptFriendRequest(
     msg: CommandMessage,
-    user: User
+    user: User | string
   ): Promise<Message | Message[]> {
     // TODO: Create friend using API (no need to delete the request).
     return msg.reply('This command is not ready yet.')
@@ -154,7 +147,7 @@ export default class FriendCommand extends Command {
 
   async deleteFriend(
     msg: CommandMessage,
-    user: User
+    user: User | string
   ): Promise<Message | Message[]> {
     // TODO: Delete friend using API.
     return msg.reply('This command is not ready yet.')
@@ -162,7 +155,7 @@ export default class FriendCommand extends Command {
 
   async listFriends(
     msg: CommandMessage,
-    user: User
+    user: User | string
   ): Promise<Message | Message[]> {
     // TODO: List friends using API.
     return msg.reply('This command is not ready yet.')
@@ -176,12 +169,23 @@ export default class FriendCommand extends Command {
     return msg.reply('This command is not ready yet.')
   }
 
-  async getApiUser(id: string): Promise<BotUser | undefined> {
+  async getApiUser(user: string | User): Promise<BotUser | undefined> {
+    if (user instanceof User) {
+      const { data } = await axios.get(
+        `${Plugin.config.api.address}/users/${user.id}?token=${
+          Plugin.config.api.token
+        }`
+      )
+
+      return data
+    }
+
     const { data } = await axios.get(
-      `${Plugin.config.api.address}/users/${id}?token=${
+      `${Plugin.config.api.address}/users/${user}?token=${
         Plugin.config.api.token
       }`
     )
+
     return data
   }
 }
