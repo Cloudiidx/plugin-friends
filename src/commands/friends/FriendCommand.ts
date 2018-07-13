@@ -97,10 +97,10 @@ export default class FriendCommand extends Command {
     }
 
     const { data: friendRequest } = await axios.post(
-      `${Plugin.config.api.address}/users/${receiver.id}/friends/requests?token=${Plugin.config.api.token}`,
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests?token=${Plugin.config.api.token}`,
       {
         user: sender,
-        receiver: receiver
+        receiver
       }
     )
 
