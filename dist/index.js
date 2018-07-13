@@ -20,13 +20,14 @@ class Plugin {
         client.on('message', message => Events_1.onMessage(message, config));
     }
 }
-Plugin.id = 'Plugin Template';
-Plugin.description = 'A template plugin';
+Plugin.id = 'Friends';
+Plugin.description = 'Friend system plugin. Provides a better and more interactive friend system than Discord.';
 Plugin.commandGroups = [
-// If you need to make command groups for the plugin's commands,
-// Add them here rather than adding them to the core bot.
-// Helps keep the plugins more independent from the bot.
-// ex. ['music', 'Music']
+    ['friends', 'Friends']
+    // If you need to make command groups for the plugin's commands,
+    // Add them here rather than adding them to the core bot.
+    // Helps keep the plugins more independent from the bot.
+    // ex. ['music', 'Music']
 ];
 exports.Plugin = Plugin;
 //# sourceMappingURL=index.js.map
