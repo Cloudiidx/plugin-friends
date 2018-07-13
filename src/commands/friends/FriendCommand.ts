@@ -53,7 +53,7 @@ export default class FriendCommand extends Command {
         },
         {
           key: 'argument',
-          label: 'user or type',
+          label: 'user or filter',
           prompt: 'Please provide a valid argument for the used action.',
           default: '',
           type: 'user|string'
@@ -101,8 +101,10 @@ export default class FriendCommand extends Command {
     msg: CommandMessage,
     user: User | string
   ): Promise<Message | Message[]> {
-    const receiver = await this.getApiUser(user instanceof User ? user.id : user)
-    const sender = await this.getApiUser(msg.author.id)
+    const receiver = await getApiUser(
+      user instanceof User ? user.id : user
+    )
+    const sender = await getApiUser(msg.author.id)
 
     if (!receiver || !sender) {
       return msg.reply(
@@ -168,14 +170,12 @@ export default class FriendCommand extends Command {
     // TODO: List friend requests using API.
     return msg.reply('This command is not ready yet.')
   }
+}
 
-  async getApiUser(id: string): Promise<BotUser | undefined> {
-    const { data } = await axios.get(
-      `${Plugin.config.api.address}/users/${id}?token=${
-        Plugin.config.api.token
-      }`
-    )
+async function getApiUser(id: string): Promise<BotUser | undefined> {
+  const { data } = await axios.get(
+    `${Plugin.config.api.address}/users/${id}?token=${Plugin.config.api.token}`
+  )
 
-    return data
-  }
+  return data
 }
