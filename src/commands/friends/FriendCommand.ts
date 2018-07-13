@@ -137,6 +137,10 @@ export default class FriendCommand extends Command {
       )
     }
 
+    if (rejectee.id === sender.id) {
+      return msg.reply('You can\'t delete a friend request from yourself. That would be silly.')
+    }
+
     const {
       data: friendRequests
     }: { data: UserFriendRequest[] } = await axios.get(
