@@ -106,8 +106,22 @@ class FriendCommand extends discord_js_commando_1.Command {
         }
     }
     async denyFriendRequest(msg, user) {
-        // TODO: Delete friend request using API.
-        return msg.reply('This command is not ready yet.');
+        const senderId = user instanceof discord_js_1.User ? user.id : user;
+        if (msg.author.id === senderId) {
+            return msg.reply('Invalid user.');
+        }
+        const sender = await getApiUser(senderId);
+        if (!sender) {
+            return msg.reply('Failed to get user data from API.');
+        }
+        const { data: friendRequest } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}&token=${index_1.Plugin
+            .config.api.token}`);
+        if (!friendRequest || !friendRequest[0]) {
+            return msg.reply('Failed to find a friend request from that user.');
+        }
+        await axios_1.default.delete(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/${friendRequest[0].id}?token=${index_1.Plugin.config
+            .api.token}`);
+        return msg.reply(`**${sender.name}**'s friend request has been declined.`);
     }
     async acceptFriendRequest(msg, user) {
         if (!user) {
@@ -165,7 +179,12 @@ class FriendCommand extends discord_js_commando_1.Command {
 }
 exports.default = FriendCommand;
 async function getApiUser(id) {
-    const { data } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${id}?token=${index_1.Plugin.config.api.token}`);
+    const { data } = await axios_1.default
+        .get(`${index_1.Plugin.config.api.address}/users/${id}?token=${index_1.Plugin.config.api.token}`)
+        .catch(err => {
+        util_1.Logger.error(err);
+        return { data: undefined };
+    });
     return data;
 }
 //# sourceMappingURL=FriendCommand.js.map
