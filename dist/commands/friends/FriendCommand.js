@@ -93,7 +93,7 @@ class FriendCommand extends discord_js_commando_1.Command {
                 const dm = await discordUser.createDM();
                 await dm.send(common_tags_1.stripIndents `**${msg.author.username}** has sent you a friend request!
 
-      You can accept it with \`accept ${msg.author.id}\` or decline it with \`deny ${msg.author.id}\`
+      You can accept it with \`friend accept ${msg.author.id}\` or decline it with \`friend deny ${msg.author.id}\`
       `);
             }
             catch (err) {
