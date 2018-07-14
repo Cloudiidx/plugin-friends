@@ -29,6 +29,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         \`friend requests [incoming/outgoing]\` lists all of your incoming or outgoing friend requests, respectfully.
         If no type is specified, it will list both incoming and outgoing friend requests.`,
             examples: ['friend add @Joker#3650', 'friend deny @Joker#3650', 'friend list', 'friend requests incoming'],
+            aliases: ['friends'],
             args: [
                 {
                     key: 'action',
@@ -174,14 +175,14 @@ class FriendCommand extends discord_js_commando_1.Command {
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``);
         }
         const id = userId || msg.author.id;
-        const friendsMapped = friends.map((f, i) => {
+        const friendsMapped = friends
+            .map((f, i) => {
             const name = f.user.id === id ? f.friend.name : f.user.name;
             const friendId = f.user.id === id ? f.friend.id : f.user.id;
             return `${i + 1}.) **${name}**  (${friendId})`;
-        });
-        return msg.reply(common_tags_1.stripIndent `Here are ${userId ? apiUser.name + "'s" : 'your'} friends:
-
-      ${friendsMapped.join('\n')}
+        })
+            .join('\n');
+        return msg.reply(common_tags_1.stripIndent `Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n${friendsMapped}
 
       ${friends.length === 10 ? 'Only showing the first 10 friends.' : ''}
     `);
