@@ -117,7 +117,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         if (msg.author.id === senderId) {
             return msg.reply('Invalid user.');
         }
-        let { data: friendRequest } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}`);
+        const { data: friendRequest } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}`);
         if (!friendRequest) {
             return msg.reply('Failed to accept friend request. Does the friend request exist?');
         }
