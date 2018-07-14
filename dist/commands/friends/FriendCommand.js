@@ -150,7 +150,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             return msg.reply(`You have no ${argument || 'incoming'} friend requests.`);
         }
         // TODO: List friend requests using API.
-        return msg.reply(`\n\n Here are your ${argument || 'incoming'} friend requests:\n\n
+        return msg.reply(common_tags_1.oneLine `\n\n Here are your ${argument || 'incoming'} friend requests:\n\n
       ${friendRequests
             .map((request, i) => '**' +
             (i + 1) +
@@ -158,7 +158,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             (!argument || argument === 'incoming'
                 ? request.user.name + '** - ' + request.user.id
                 : request.receiver.name + '** - ' + request.receiver.id))
-            .join('\n')}
+            .join('\n')}\n\n
 
         ${!argument || argument === 'incoming'
             ? `You can accept any friend request by typing \`nw friend accept @User\` (or \`nw friend accept <user ID>\` if you aren't currently in the same guild as the other user.)`
