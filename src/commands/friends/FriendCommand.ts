@@ -15,7 +15,7 @@ friend requests [incoming/outgoing]
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
 import { Message, User, GuildMember } from 'discord.js'
 import { oneLine } from 'common-tags'
-import { User as BotUser, UserFriend, UserFriendRequest } from '@nightwatch/db'
+import { User as BotUser, UserFriendRequest } from '@nightwatch/db'
 import { Logger } from '@nightwatch/util'
 import { Plugin } from '../../index'
 import axios from 'axios'
@@ -126,9 +126,41 @@ export default class FriendCommand extends Command {
     }
   }
 
-  async denyFriendRequest (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
-    // TODO: Delete friend request using API.
-    return msg.reply('This command is not ready yet.')
+  async denyFriendRequest(
+    msg: CommandMessage,
+    user: User | string
+  ): Promise<Message | Message[]> {
+    let rejectee: User | BotUser | undefined
+
+    if (msg.author.id === (user instanceof User ? user.id : user)) {
+      return msg.reply('You can\'t delete a friend request from yourself. That would be silly.')
+    }
+
+    if (!(user instanceof User)) {
+      rejectee = await getApiUser(user)
+    } else {
+      rejectee = user
+    }
+
+    if (typeof rejectee === 'undefined') {
+      return msg.reply('Sorry, I couldn\'t find that user in my API.')
+    }
+
+    const { data: searchResults }: { data: UserFriendRequest[] } = await axios.get(
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${rejectee.id}&token=${Plugin.config.api.token}`
+    )
+
+    if (searchResults.length > 0 && searchResults[0].user.id === rejectee.id) {
+      await axios.delete(
+        `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/${searchResults[0].id}?token=${Plugin.config.api.token}`
+      )
+
+      return msg.reply(
+        `Successfully deleted **${rejectee instanceof User ? rejectee.username : rejectee.name}**'s friend request.`
+      )
+    }
+
+    return msg.reply(`Couldn't find a friend request from that user.`)
   }
 
   async acceptFriendRequest (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
@@ -208,7 +240,7 @@ export default class FriendCommand extends Command {
 }
 
 async function getApiUser (id: string): Promise<BotUser | undefined> {
-  const { data } = await axios.get(`${Plugin.config.api.address}/users/${id}?token=${Plugin.config.api.token}`)
+  const { data }: { data: BotUser | undefined } = await axios.get(`${Plugin.config.api.address}/users/${id}?token=${Plugin.config.api.token}`)
 
   return data
 }
