@@ -148,8 +148,30 @@ class FriendCommand extends discord_js_commando_1.Command {
         return msg.reply(`You are now friends with **${friendName}**!`);
     }
     async deleteFriend(msg, user) {
-        // TODO: Delete friend using API.
-        return msg.reply('This command is not ready yet.');
+        const userId = user instanceof discord_js_1.User ? user.id : user;
+        if (userId) {
+            return msg.reply('You must specify a user. It can be a mention or their user ID.');
+        }
+        if (userId === msg.author.id) {
+            msg.reply('Invalid user.');
+        }
+        const apiUser = await getApiUser(userId);
+        if (!apiUser) {
+            return msg.reply('Failed to find user in API.');
+        }
+        const { data: friend } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/search?userId=${userId}&token=${index_1.Plugin.config.api
+            .token}`);
+        if (!friend || !friend[0]) {
+            return msg.reply(`You aren't friends with **${apiUser.name}**.`);
+        }
+        try {
+            await axios_1.default.delete(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/${friend[0].id}?token=${index_1.Plugin.config.api.token}`);
+        }
+        catch (err) {
+            util_1.Logger.error(err);
+            return msg.reply(`Failed to remove **${apiUser.name}** from your friends list.`);
+        }
+        return msg.reply(`You are no longer friends with **${apiUser.name}**.`);
     }
     async listFriends(msg, user) {
         const userId = user instanceof discord_js_1.User ? user.id : user;
