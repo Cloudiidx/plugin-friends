@@ -122,8 +122,8 @@ class FriendCommand extends discord_js_commando_1.Command {
             return msg.reply('Failed to accept friend request. Does the friend request exist?');
         }
         const friend = {
-            user: friendRequest.user,
-            friend: friendRequest.receiver
+            user: friendRequest[0].user,
+            friend: friendRequest[0].receiver
         };
         const friendName = friend.user.id === senderId ? friend.user.name : friend.friend.name;
         try {

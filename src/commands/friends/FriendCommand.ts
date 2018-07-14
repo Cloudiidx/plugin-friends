@@ -151,8 +151,8 @@ export default class FriendCommand extends Command {
     }
 
     const friend = {
-      user: friendRequest.user,
-      friend: friendRequest.receiver
+      user: friendRequest[0].user,
+      friend: friendRequest[0].receiver
     }
 
     const friendName = friend.user.id === senderId ? friend.user.name : friend.friend.name
