@@ -180,34 +180,31 @@ export default class FriendCommand extends Command {
     return msg.reply('This command is not ready yet.')
   }
 
-  async listFriendRequests (
-    msg: CommandMessage,
-    argument: 'incoming' | 'outgoing' = 'incoming'
-  ): Promise<Message | Message[]> {
+  async listFriendRequests (msg: CommandMessage, argument: 'incoming' | 'outgoing'): Promise<Message | Message[]> {
     const { data: friendRequests } = await axios.get(
       `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument ||
         'incoming'}&token=${Plugin.config.api.token}`
     )
 
     if (!friendRequests || friendRequests.length === 0) {
-      return msg.reply(`You have no ${argument} friend requests.`)
+      return msg.reply(`You have no ${argument || 'incoming'} friend requests.`)
     }
     // TODO: List friend requests using API.
     return msg.reply(
-      `\n\n Here are your ${argument} friend requests:\n\n
+      `\n\n Here are your ${argument || 'incoming'} friend requests:\n\n
       ${friendRequests
         .map(
           (request: UserFriendRequest, i: number) =>
             '**' +
             (i + 1) +
             '.) ' +
-            (argument === 'incoming'
+            (!argument || argument === 'incoming'
               ? request.user.name + '** - ' + request.user.id
               : request.receiver.name + '** - ' + request.receiver.id)
         )
         .join('\n')}
 
-        ${argument === 'incoming'
+        ${!argument || argument === 'incoming'
           ? `You can accept any friend request by typing \`nw friend accept @User\` (or \`nw friend accept <user ID>\` if you aren't currently in the same guild as the other user.)`
           : `If they aren't responding to your request, try sending them a DM to accept it.`}
       `
