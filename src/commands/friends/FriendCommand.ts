@@ -15,7 +15,7 @@ friend requests [incoming/outgoing]
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
 import { Message, User, GuildMember } from 'discord.js'
 import { oneLine } from 'common-tags'
-import { User as BotUser } from '@nightwatch/db'
+import { User as BotUser, UserFriend, UserFriendRequest } from '@nightwatch/db'
 import { Logger } from '@nightwatch/util'
 import { Plugin } from '../../index'
 import axios from 'axios'
@@ -132,8 +132,37 @@ export default class FriendCommand extends Command {
   }
 
   async acceptFriendRequest (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
-    // TODO: Create friend using API (no need to delete the request).
-    return msg.reply('This command is not ready yet.')
+    if (!user) {
+      return msg.reply("You need to specify a who's friend request to accept. It can be a mention or their ID.")
+    }
+
+    const senderId = user instanceof User ? user.id : user
+
+    if (msg.author.id === senderId) {
+      return msg.reply('Invalid user.')
+    }
+
+    let { data: friendRequest }: { data: UserFriendRequest } = await axios.get(
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}`
+    )
+
+    if (!friendRequest) {
+      return msg.reply('Failed to accept friend request. Does the friend request exist?')
+    }
+
+    const friend = new UserFriend()
+    friend.user = friendRequest.user
+    friend.friend = friendRequest.receiver
+
+    const friendName = friend.user.id === senderId ? friend.user.name : friend.friend.name
+
+    try {
+      await axios.post(`${Plugin.config.api.address}/users/${msg.author.id}/friends`, friend)
+    } catch (err) {
+      return msg.reply(oneLine`Failed to add **${friendName}** as a friend. Are you two already friends?`)
+    }
+
+    return msg.reply(`You are now friends with **${friendName}**!`)
   }
 
   async deleteFriend (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {

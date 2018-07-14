@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_commando_1 = require("discord.js-commando");
 const discord_js_1 = require("discord.js");
 const common_tags_1 = require("common-tags");
+const db_1 = require("@nightwatch/db");
 const util_1 = require("@nightwatch/util");
 const index_1 = require("../../index");
 const axios_1 = require("axios");
@@ -110,8 +111,28 @@ class FriendCommand extends discord_js_commando_1.Command {
         return msg.reply('This command is not ready yet.');
     }
     async acceptFriendRequest(msg, user) {
-        // TODO: Create friend using API (no need to delete the request).
-        return msg.reply('This command is not ready yet.');
+        if (!user) {
+            return msg.reply("You need to specify a who's friend request to accept. It can be a mention or their ID.");
+        }
+        const senderId = user instanceof discord_js_1.User ? user.id : user;
+        if (msg.author.id === senderId) {
+            return msg.reply('Invalid user.');
+        }
+        let { data: friendRequest } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}`);
+        if (!friendRequest) {
+            return msg.reply('Failed to accept friend request. Does the friend request exist?');
+        }
+        const friend = new db_1.UserFriend();
+        friend.user = friendRequest.user;
+        friend.friend = friendRequest.receiver;
+        const friendName = friend.user.id === senderId ? friend.user.name : friend.friend.name;
+        try {
+            await axios_1.default.post(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends`, friend);
+        }
+        catch (err) {
+            return msg.reply(common_tags_1.oneLine `Failed to add **${friendName}** as a friend. Are you two already friends?`);
+        }
+        return msg.reply(`You are now friends with **${friendName}**!`);
     }
     async deleteFriend(msg, user) {
         // TODO: Delete friend using API.
