@@ -143,7 +143,8 @@ export default class FriendCommand extends Command {
     }
 
     const { data: friendRequest } = await axios.get(
-      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}`
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}&token=${Plugin
+        .config.api.token}`
     )
 
     if (!friendRequest || !friendRequest[0]) {
@@ -158,7 +159,10 @@ export default class FriendCommand extends Command {
     const friendName = friend.user.id === senderId ? friend.user.name : friend.friend.name
 
     try {
-      await axios.post(`${Plugin.config.api.address}/users/${msg.author.id}/friends`, friend)
+      await axios.post(
+        `${Plugin.config.api.address}/users/${msg.author.id}/friends?token=${Plugin.config.api.token}`,
+        friend
+      )
     } catch (err) {
       return msg.reply(oneLine`Failed to add **${friendName}** as a friend. Are you two already friends?`)
     }

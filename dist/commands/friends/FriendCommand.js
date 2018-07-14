@@ -117,7 +117,8 @@ class FriendCommand extends discord_js_commando_1.Command {
         if (msg.author.id === senderId) {
             return msg.reply('Invalid user.');
         }
-        const { data: friendRequest } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}`);
+        const { data: friendRequest } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}&token=${index_1.Plugin
+            .config.api.token}`);
         if (!friendRequest || !friendRequest[0]) {
             return msg.reply('Failed to accept friend request. Does the friend request exist?');
         }
@@ -127,7 +128,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         };
         const friendName = friend.user.id === senderId ? friend.user.name : friend.friend.name;
         try {
-            await axios_1.default.post(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends`, friend);
+            await axios_1.default.post(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends?token=${index_1.Plugin.config.api.token}`, friend);
         }
         catch (err) {
             return msg.reply(common_tags_1.oneLine `Failed to add **${friendName}** as a friend. Are you two already friends?`);
