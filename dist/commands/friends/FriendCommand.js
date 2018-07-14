@@ -20,7 +20,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             group: 'friends',
             memberName: 'friend',
             description: 'Allows you to send and respond to friend requests, as well as list your friends/friend requests.',
-            details: common_tags_1.oneLine `
+            details: common_tags_1.stripIndent `
         \`friend add <mention|id>\` sends a friend request to that user.\n
         \`friend accept <mention|id>\` accepts a friend request from that user.\n
         \`friend deny/decline <mention|id>\` denies a friend request from that user.\n
@@ -144,7 +144,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             await axios_1.default.post(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends?token=${index_1.Plugin.config.api.token}`, friend);
         }
         catch (err) {
-            return msg.reply(common_tags_1.oneLine `Failed to add **${friendName}** as a friend. Are you two already friends?`);
+            return msg.reply(`Failed to add **${friendName}** as a friend. Are you two already friends?`);
         }
         return msg.reply(`You are now friends with **${friendName}**!`);
     }
@@ -169,7 +169,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             if (userId) {
                 return msg.reply(`${apiUser.name} has no friends`);
             }
-            return msg.reply(common_tags_1.oneLine `It appears you don't have any friends yet. <:feelsbadman:289162179855253506>\n\n
+            return msg.reply(`It appears you don't have any friends yet. <:feelsbadman:289162179855253506>\n\n
 
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``);
         }
@@ -179,7 +179,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             const friendId = f.user.id === id ? f.friend.id : f.user.id;
             return `${i + 1}.) **${name}**  (${friendId})`;
         });
-        return msg.reply(common_tags_1.oneLine `Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n
+        return msg.reply(`Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n
       ${friendsMapped.join('\n')}
 
       ${friends.length === 10 ? '\n\nOnly showing the first 10 friends.' : ''}
