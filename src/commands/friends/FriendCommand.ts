@@ -1,19 +1,13 @@
 /*
 
-friend accept @Joker#3650
-
-friend deny/decline @Joker#3650
-
 friend remove/delete @Joker#3650
 
 friend list [@Joker#3650]
 
-friend requests [incoming/outgoing]
-
 */
 
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
-import { Message, User, GuildMember } from 'discord.js'
+import { Message, User } from 'discord.js'
 import { oneLine } from 'common-tags'
 import { User as BotUser, UserFriendRequest } from '@nightwatch/db'
 import { Logger } from '@nightwatch/util'
