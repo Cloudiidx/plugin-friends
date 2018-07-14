@@ -3,8 +3,6 @@
 
 friend remove/delete @Joker#3650
 
-friend list [@Joker#3650]
-
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_commando_1 = require("discord.js-commando");
@@ -182,7 +180,9 @@ class FriendCommand extends discord_js_commando_1.Command {
             return `${i + 1}.) **${name}**  (${friendId})`;
         })
             .join('\n');
-        return msg.reply(common_tags_1.stripIndent `Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n${friendsMapped}
+        return msg.reply(common_tags_1.stripIndent `
+
+    Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n${friendsMapped}
 
       ${friends.length === 10 ? 'Only showing the first 10 friends.' : ''}
     `);
@@ -193,7 +193,6 @@ class FriendCommand extends discord_js_commando_1.Command {
         if (!friendRequests || friendRequests.length === 0) {
             return msg.reply(`You have no ${argument || 'incoming'} friend requests.`);
         }
-        // TODO: List friend requests using API.
         return msg.reply(common_tags_1.stripIndent `
 
     Here are your ${argument || 'incoming'} friend requests:

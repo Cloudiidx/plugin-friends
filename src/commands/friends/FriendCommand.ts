@@ -2,8 +2,6 @@
 
 friend remove/delete @Joker#3650
 
-friend list [@Joker#3650]
-
 */
 
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
@@ -242,7 +240,9 @@ export default class FriendCommand extends Command {
       })
       .join('\n')
 
-    return msg.reply(stripIndent`Here are ${userId ? apiUser!.name + "'s" : 'your'} friends:\n\n${friendsMapped}
+    return msg.reply(stripIndent`
+
+    Here are ${userId ? apiUser!.name + "'s" : 'your'} friends:\n\n${friendsMapped}
 
       ${friends.length === 10 ? 'Only showing the first 10 friends.' : ''}
     `)
@@ -257,7 +257,7 @@ export default class FriendCommand extends Command {
     if (!friendRequests || friendRequests.length === 0) {
       return msg.reply(`You have no ${argument || 'incoming'} friend requests.`)
     }
-    // TODO: List friend requests using API.
+
     return msg.reply(stripIndent`
 
     Here are your ${argument || 'incoming'} friend requests:
