@@ -107,6 +107,9 @@ class FriendCommand extends discord_js_commando_1.Command {
     }
     async denyFriendRequest(msg, user) {
         const senderId = user instanceof discord_js_1.User ? user.id : user;
+        if (!senderId) {
+            return msg.reply('You must specify a user. It can be a mention or their user ID.');
+        }
         if (msg.author.id === senderId) {
             return msg.reply('Invalid user.');
         }

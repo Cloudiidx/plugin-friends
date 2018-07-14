@@ -129,6 +129,10 @@ export default class FriendCommand extends Command {
   async denyFriendRequest (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
     const senderId = user instanceof User ? user.id : user
 
+    if (!senderId) {
+      return msg.reply('You must specify a user. It can be a mention or their user ID.')
+    }
+
     if (msg.author.id === senderId) {
       return msg.reply('Invalid user.')
     }
