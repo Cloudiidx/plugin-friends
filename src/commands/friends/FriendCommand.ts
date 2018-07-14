@@ -27,14 +27,14 @@ export default class FriendCommand extends Command {
         {
           key: 'action',
           label: 'action',
-          prompt: 'Would you like to `add/remove/list` friends, `accept/deny` requests, or list `requests`?',
+          prompt: 'Would you like to `add/remove/list` friends, `accept/deny` requests, or list `requests`?\n',
           type: 'string',
           infinite: false
         },
         {
           key: 'argument',
           label: 'user or filter',
-          prompt: 'Please provide a valid argument for the used action.',
+          prompt: 'Please provide a valid argument for the used action.\n',
           default: '',
           type: 'user|string'
         }
