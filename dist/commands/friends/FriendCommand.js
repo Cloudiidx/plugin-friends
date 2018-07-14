@@ -153,8 +153,39 @@ class FriendCommand extends discord_js_commando_1.Command {
         return msg.reply('This command is not ready yet.');
     }
     async listFriends(msg, user) {
-        // TODO: List friends using API.
-        return msg.reply('This command is not ready yet.');
+        const userId = user instanceof discord_js_1.User ? user.id : user;
+        if (userId === msg.author.id) {
+            msg.reply("*You don't have to specify yourself.*");
+        }
+        let apiUser;
+        if (userId) {
+            apiUser = await getApiUser(userId);
+            if (!apiUser) {
+                return msg.reply('Unable to find that user in my API.');
+            }
+        }
+        const { data: friends } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${userId || msg.author.id}/friends/search?token=${index_1.Plugin.config.api.token}`);
+        if (!friends || friends.length === 0) {
+            if (userId) {
+                return msg.reply(`${apiUser.name} has no friends`);
+            }
+            return msg.reply(common_tags_1.oneLine `It appears you don't have any friends yet. <:feelsbadman:289162179855253506>\n\n
+
+     Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``);
+        }
+        const id = userId || msg.author.id;
+        const friendsString = friends
+            .map((f, i) => {
+            const name = f.user.id === id ? f.friend.name : f.user.name;
+            const friendId = f.user.id === id ? f.friend.id : f.user.id;
+            return `${i + 1}.) ${name}  (${friendId})`;
+        })
+            .join('\n');
+        return msg.reply(common_tags_1.oneLine `Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n
+      ${friendsString}
+
+      ${friends.length === 10 ? '\n\nOnly showing the first 10 friends.' : ''}
+    `);
     }
     async listFriendRequests(msg, argument) {
         const { data: friendRequests } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument ||

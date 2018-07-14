@@ -9,7 +9,7 @@ friend list [@Joker#3650]
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
 import { Message, User } from 'discord.js'
 import { oneLine } from 'common-tags'
-import { User as BotUser, UserFriendRequest } from '@nightwatch/db'
+import { User as BotUser, UserFriendRequest, UserFriend } from '@nightwatch/db'
 import { Logger } from '@nightwatch/util'
 import { Plugin } from '../../index'
 import axios from 'axios'
@@ -201,8 +201,51 @@ export default class FriendCommand extends Command {
   }
 
   async listFriends (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
-    // TODO: List friends using API.
-    return msg.reply('This command is not ready yet.')
+    const userId = user instanceof User ? user.id : user
+
+    if (userId === msg.author.id) {
+      msg.reply("*You don't have to specify yourself.*")
+    }
+
+    let apiUser: BotUser | undefined
+    if (userId) {
+      apiUser = await getApiUser(userId)
+
+      if (!apiUser) {
+        return msg.reply('Unable to find that user in my API.')
+      }
+    }
+
+    const { data: friends } = await axios.get(
+      `${Plugin.config.api.address}/users/${userId || msg.author.id}/friends/search?token=${Plugin.config.api.token}`
+    )
+
+    if (!friends || friends.length === 0) {
+      if (userId) {
+        return msg.reply(`${apiUser!.name} has no friends`)
+      }
+
+      return msg.reply(oneLine`It appears you don't have any friends yet. <:feelsbadman:289162179855253506>\n\n
+
+     Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``)
+    }
+
+    const id = userId || msg.author.id
+
+    const friendsString = friends
+      .map((f: UserFriend, i: number) => {
+        const name = f.user.id === id ? f.friend.name : f.user.name
+        const friendId = f.user.id === id ? f.friend.id : f.user.id
+
+        return `${i + 1}.) ${name}  (${friendId})`
+      })
+      .join('\n')
+
+    return msg.reply(oneLine`Here are ${userId ? apiUser!.name + "'s" : 'your'} friends:\n\n
+      ${friendsString}
+
+      ${friends.length === 10 ? '\n\nOnly showing the first 10 friends.' : ''}
+    `)
   }
 
   async listFriendRequests (msg: CommandMessage, argument: 'incoming' | 'outgoing'): Promise<Message | Message[]> {
