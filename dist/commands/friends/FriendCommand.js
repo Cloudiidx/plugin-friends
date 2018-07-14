@@ -169,7 +169,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             if (userId) {
                 return msg.reply(`${apiUser.name} has no friends`);
             }
-            return msg.reply(`It appears you don't have any friends yet. <:feelsbadman:289162179855253506>\n\n
+            return msg.reply(common_tags_1.stripIndent `It appears you don't have any friends yet. <:feelsbadman:289162179855253506>
 
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``);
         }
@@ -179,10 +179,11 @@ class FriendCommand extends discord_js_commando_1.Command {
             const friendId = f.user.id === id ? f.friend.id : f.user.id;
             return `${i + 1}.) **${name}**  (${friendId})`;
         });
-        return msg.reply(`Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n
+        return msg.reply(common_tags_1.stripIndent `Here are ${userId ? apiUser.name + "'s" : 'your'} friends:
+
       ${friendsMapped.join('\n')}
 
-      ${friends.length === 10 ? '\n\nOnly showing the first 10 friends.' : ''}
+      ${friends.length === 10 ? 'Only showing the first 10 friends.' : ''}
     `);
     }
     async listFriendRequests(msg, argument) {
@@ -192,14 +193,20 @@ class FriendCommand extends discord_js_commando_1.Command {
             return msg.reply(`You have no ${argument || 'incoming'} friend requests.`);
         }
         // TODO: List friend requests using API.
-        return msg.reply(`\n\n Here are your ${argument || 'incoming'} friend requests:\n\n${friendRequests
+        return msg.reply(common_tags_1.stripIndent `
+
+    Here are your ${argument || 'incoming'} friend requests:
+
+    ${friendRequests
             .map((request, i) => '**' +
             (i + 1) +
             '.) ' +
             (!argument || argument === 'incoming'
                 ? request.user.name + '** - ' + request.user.id
                 : request.receiver.name + '** - ' + request.receiver.id))
-            .join('\n')}\n\n${!argument || argument === 'incoming'
+            .join('\n')}
+
+      ${!argument || argument === 'incoming'
             ? `You can accept any friend request by typing \`nw friend accept @User\` (or \`nw friend accept <user ID>\` if you aren't currently in the same guild as the other user.)`
             : `If they aren't responding to your request, try sending them a DM to accept it.`}
       `);
