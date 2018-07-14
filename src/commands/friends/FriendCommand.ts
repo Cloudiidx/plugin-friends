@@ -252,7 +252,7 @@ export default class FriendCommand extends Command {
       }
 
       return msg.reply(stripIndent`It appears you don't have any friends yet. ${this.client.emojis.find(
-        e => e.id === '289162179855253506'
+        e => e.name === 'feelsbadman'
       )}
 
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``)

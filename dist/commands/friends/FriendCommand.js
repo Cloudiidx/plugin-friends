@@ -185,7 +185,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             if (userId) {
                 return msg.reply(`${apiUser.name} has no friends`);
             }
-            return msg.reply(common_tags_1.stripIndent `It appears you don't have any friends yet. ${this.client.emojis.find(e => e.id === '289162179855253506')}
+            return msg.reply(common_tags_1.stripIndent `It appears you don't have any friends yet. ${this.client.emojis.find(e => e.name === 'feelsbadman')}
 
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``);
         }
