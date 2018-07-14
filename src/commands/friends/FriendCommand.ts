@@ -142,7 +142,7 @@ export default class FriendCommand extends Command {
       return msg.reply('Invalid user.')
     }
 
-    let { data: friendRequest }: { data: UserFriendRequest } = await axios.get(
+    const { data: friendRequest }: { data: UserFriendRequest } = await axios.get(
       `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${senderId}`
     )
 
@@ -150,9 +150,10 @@ export default class FriendCommand extends Command {
       return msg.reply('Failed to accept friend request. Does the friend request exist?')
     }
 
-    const friend = new UserFriend()
-    friend.user = friendRequest.user
-    friend.friend = friendRequest.receiver
+    const friend = {
+      user: friendRequest.user,
+      friend: friendRequest.receiver
+    }
 
     const friendName = friend.user.id === senderId ? friend.user.name : friend.friend.name
 
