@@ -190,22 +190,19 @@ export default class FriendCommand extends Command {
       return msg.reply(`You have no ${argument || 'incoming'} friend requests.`)
     }
     // TODO: List friend requests using API.
-    return msg.reply(oneLine`\n\n Here are your ${argument || 'incoming'} friend requests:\n\n
-      ${friendRequests
-        .map(
-          (request: UserFriendRequest, i: number) =>
-            '**' +
-            (i + 1) +
-            '.) ' +
-            (!argument || argument === 'incoming'
-              ? request.user.name + '** - ' + request.user.id
-              : request.receiver.name + '** - ' + request.receiver.id)
-        )
-        .join('\n')}\n\n
-
-        ${!argument || argument === 'incoming'
-          ? `You can accept any friend request by typing \`nw friend accept @User\` (or \`nw friend accept <user ID>\` if you aren't currently in the same guild as the other user.)`
-          : `If they aren't responding to your request, try sending them a DM to accept it.`}
+    return msg.reply(`\n\n Here are your ${argument || 'incoming'} friend requests:\n\n${friendRequests
+      .map(
+        (request: UserFriendRequest, i: number) =>
+          '**' +
+          (i + 1) +
+          '.) ' +
+          (!argument || argument === 'incoming'
+            ? request.user.name + '** - ' + request.user.id
+            : request.receiver.name + '** - ' + request.receiver.id)
+      )
+      .join('\n')}\n\n${!argument || argument === 'incoming'
+      ? `You can accept any friend request by typing \`nw friend accept @User\` (or \`nw friend accept <user ID>\` if you aren't currently in the same guild as the other user.)`
+      : `If they aren't responding to your request, try sending them a DM to accept it.`}
       `)
   }
 }
