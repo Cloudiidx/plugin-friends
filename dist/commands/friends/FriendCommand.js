@@ -21,11 +21,11 @@ class FriendCommand extends discord_js_commando_1.Command {
             memberName: 'friend',
             description: 'Allows you to send and respond to friend requests, as well as list your friends/friend requests.',
             details: common_tags_1.stripIndent `
-        \`friend add <mention|id>\` sends a friend request to that user.\n
-        \`friend accept <mention|id>\` accepts a friend request from that user.\n
-        \`friend deny/decline <mention|id>\` denies a friend request from that user.\n
-        \`friend remove/delete <mention|id>\` removes that user from your friend list.\n
-        \`friend list [mention|id]\` lists all the user's friends, or your own if no user is given.\n
+        \`friend add <mention|id>\` sends a friend request to that user.
+        \`friend accept <mention|id>\` accepts a friend request from that user.
+        \`friend deny/decline <mention|id>\` denies a friend request from that user.
+        \`friend remove/delete <mention|id>\` removes that user from your friend list.
+        \`friend list [mention|id]\` lists all the user's friends, or your own if no user is given.
         \`friend requests [incoming/outgoing]\` lists all of your incoming or outgoing friend requests, respectfully.
         If no type is specified, it will list both incoming and outgoing friend requests.`,
             examples: ['friend add @Joker#3650', 'friend deny @Joker#3650', 'friend list', 'friend requests incoming'],
