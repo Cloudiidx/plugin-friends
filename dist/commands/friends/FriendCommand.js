@@ -20,7 +20,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         \`friend remove/delete <mention|id>\` removes that user from your friend list.
         \`friend list [mention|id]\` lists all the user's friends, or your own if no user is given.
         \`friend requests [incoming/outgoing]\` lists all of your incoming or outgoing friend requests, respectfully.
-        If no type is specified, it will list both incoming and outgoing friend requests.`,
+        If no type is specified, it will list incoming friend requests.`,
             examples: ['friend add @Joker#3650', 'friend deny @Joker#3650', 'friend list', 'friend requests incoming'],
             aliases: ['friends'],
             args: [
