@@ -202,7 +202,7 @@ export default class FriendCommand extends Command {
     }
 
     if (userId === msg.author.id) {
-      msg.reply('Invalid user.')
+      return msg.reply('Invalid user.')
     }
 
     const apiUser = await getApiUser(userId)

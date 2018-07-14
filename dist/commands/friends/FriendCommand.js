@@ -153,7 +153,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             return msg.reply('You must specify a user. It can be a mention or their user ID.');
         }
         if (userId === msg.author.id) {
-            msg.reply('Invalid user.');
+            return msg.reply('Invalid user.');
         }
         const apiUser = await getApiUser(userId);
         if (!apiUser) {
