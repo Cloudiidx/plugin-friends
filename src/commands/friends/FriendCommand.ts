@@ -130,29 +130,33 @@ export default class FriendCommand extends Command {
     msg: CommandMessage,
     user: User | string
   ): Promise<Message | Message[]> {
-    let sender: User | BotUser
+    let rejectee: User | BotUser | undefined
 
     if (msg.author.id === (user instanceof User ? user.id : user)) {
       return msg.reply('You can\'t delete a friend request from yourself. That would be silly.')
     }
 
     if (!(user instanceof User)) {
-      sender = await getApiUser(user)
+      rejectee = await getApiUser(user)
     } else {
-      sender = user
+      rejectee = user
+    }
+
+    if (typeof rejectee === 'undefined') {
+      return msg.reply('Sorry, I couldn\'t find that user in my API.')
     }
 
     const { data: searchResults }: { data: UserFriendRequest[] } = await axios.get(
-      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${sender.id}&token=${Plugin.config.api.token}`
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${rejectee.id}&token=${Plugin.config.api.token}`
     )
 
-    if (searchResults.length > 0 && searchResults[0].user.id === sender.id) {
+    if (searchResults.length > 0 && searchResults[0].user.id === rejectee.id) {
       await axios.delete(
         `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/${searchResults[0].id}?token=${Plugin.config.api.token}`
       )
 
       return msg.reply(
-        `Successfully deleted **${sender instanceof User ? sender.username : sender.name}**'s friend request.`
+        `Successfully deleted **${rejectee instanceof User ? rejectee.username : rejectee.name}**'s friend request.`
       )
     }
 
@@ -235,7 +239,7 @@ export default class FriendCommand extends Command {
   }
 }
 
-async function getApiUser (id: string): Promise<BotUser> {
+async function getApiUser (id: string): Promise<BotUser | undefined> {
   const { data }: { data: BotUser } = await axios.get(`${Plugin.config.api.address}/users/${id}?token=${Plugin.config.api.token}`)
 
   return data
