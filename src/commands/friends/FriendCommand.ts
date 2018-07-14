@@ -185,8 +185,8 @@ export default class FriendCommand extends Command {
     argument: 'incoming' | 'outgoing' = 'incoming'
   ): Promise<Message | Message[]> {
     const { data: friendRequests } = await axios.get(
-      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument}&token=${Plugin
-        .config.api.token}`
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument ||
+        'incoming'}&token=${Plugin.config.api.token}`
     )
 
     if (!friendRequests || friendRequests.length === 0) {

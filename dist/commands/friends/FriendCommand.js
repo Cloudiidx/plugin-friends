@@ -144,8 +144,8 @@ class FriendCommand extends discord_js_commando_1.Command {
         return msg.reply('This command is not ready yet.');
     }
     async listFriendRequests(msg, argument = 'incoming') {
-        const { data: friendRequests } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument}&token=${index_1.Plugin
-            .config.api.token}`);
+        const { data: friendRequests } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument ||
+            'incoming'}&token=${index_1.Plugin.config.api.token}`);
         if (!friendRequests || friendRequests.length === 0) {
             return msg.reply(`You have no ${argument} friend requests.`);
         }
