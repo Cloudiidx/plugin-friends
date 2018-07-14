@@ -1,9 +1,3 @@
-/*
-
-friend remove/delete @Joker#3650
-
-*/
-
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
 import { Message, User } from 'discord.js'
 import { stripIndent } from 'common-tags'
@@ -257,7 +251,9 @@ export default class FriendCommand extends Command {
         return msg.reply(`${apiUser!.name} has no friends`)
       }
 
-      return msg.reply(stripIndent`It appears you don't have any friends yet. <:feelsbadman:289162179855253506>
+      return msg.reply(stripIndent`It appears you don't have any friends yet. ${this.client.emojis.find(
+        e => e.id === '289162179855253506'
+      )}
 
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``)
     }

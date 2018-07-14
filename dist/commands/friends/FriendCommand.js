@@ -1,9 +1,4 @@
 "use strict";
-/*
-
-friend remove/delete @Joker#3650
-
-*/
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_commando_1 = require("discord.js-commando");
 const discord_js_1 = require("discord.js");
@@ -190,7 +185,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             if (userId) {
                 return msg.reply(`${apiUser.name} has no friends`);
             }
-            return msg.reply(common_tags_1.stripIndent `It appears you don't have any friends yet. <:feelsbadman:289162179855253506>
+            return msg.reply(common_tags_1.stripIndent `It appears you don't have any friends yet. ${this.client.emojis.find(e => e.id === '289162179855253506')}
 
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``);
         }
