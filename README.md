@@ -1,5 +1,5 @@
 # Friends
- > Friend plugin to add a friend system to the bot designed to be more interactive and better than Discord's friend system.
+ > Friend system plugin. Provides a better and more interactive friend system than Discord.
 
 >> TODO
 ## Features
