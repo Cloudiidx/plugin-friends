@@ -81,6 +81,10 @@ class FriendCommand extends discord_js_commando_1.Command {
         if (!user) {
             return msg.reply('You need to specify a user to send a friend request to. It can be a mention or their ID.');
         }
+        const receiverId = user instanceof discord_js_1.User ? user.id : user;
+        if (msg.author.id === receiverId) {
+            return msg.reply("You can't send yourself a friend request.");
+        }
         const receiver = await getApiUser(user instanceof discord_js_1.User ? user.id : user);
         const sender = await getApiUser(msg.author.id);
         if (!receiver || !sender) {
