@@ -150,7 +150,8 @@ class FriendCommand extends discord_js_commando_1.Command {
             return msg.reply(`You have no ${argument} friend requests.`);
         }
         // TODO: List friend requests using API.
-        return msg.reply(`\n${friendRequests
+        return msg.reply(`\n\n Here are your ${argument} friend requests:\n\n
+      ${friendRequests
             .map((request, i) => '**' +
             (i + 1) +
             '.) ' +

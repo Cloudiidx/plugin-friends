@@ -194,7 +194,8 @@ export default class FriendCommand extends Command {
     }
     // TODO: List friend requests using API.
     return msg.reply(
-      `\n${friendRequests
+      `\n\n Here are your ${argument} friend requests:\n\n
+      ${friendRequests
         .map(
           (request: UserFriendRequest, i: number) =>
             '**' +
