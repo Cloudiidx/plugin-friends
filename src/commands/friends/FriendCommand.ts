@@ -64,13 +64,15 @@ export default class FriendCommand extends Command {
         case 'add':
           return this.sendFriendRequest(msg, argument)
 
-        case 'deny' || 'decline':
+        case 'deny':
+        case 'decline':
           return this.denyFriendRequest(msg, argument)
 
         case 'accept':
           return this.acceptFriendRequest(msg, argument)
 
-        case 'remove' || 'delete':
+        case 'remove':
+        case 'delete':
           return this.deleteFriend(msg, argument)
 
         case 'list':
