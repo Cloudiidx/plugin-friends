@@ -240,7 +240,7 @@ export default class FriendCommand extends Command {
 }
 
 async function getApiUser (id: string): Promise<BotUser | undefined> {
-  const { data }: { data: BotUser } = await axios.get(`${Plugin.config.api.address}/users/${id}?token=${Plugin.config.api.token}`)
+  const { data }: { data: BotUser | undefined } = await axios.get(`${Plugin.config.api.address}/users/${id}?token=${Plugin.config.api.token}`)
 
   return data
 }
