@@ -150,9 +150,15 @@ export default class FriendCommand extends Command {
       return msg.reply('Failed to accept friend request. Does the friend request exist?')
     }
 
+    const receiver = await getApiUser(msg.author.id)
+
+    if (!receiver) {
+      return msg.reply('Failed to get your user data from API.')
+    }
+
     const friend = {
       user: friendRequest.user,
-      friend: friendRequest.receiver
+      friend: receiver
     }
 
     const friendName = friend.user.id === senderId ? friend.user.name : friend.friend.name
