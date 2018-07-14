@@ -1,6 +1,6 @@
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
 import { Message, User } from 'discord.js'
-import { stripIndent } from 'common-tags'
+import { stripIndents } from 'common-tags'
 import { User as BotUser, UserFriendRequest, UserFriend } from '@nightwatch/db'
 import { Logger } from '@nightwatch/util'
 import { Plugin } from '../../index'
@@ -13,7 +13,7 @@ export default class FriendCommand extends Command {
       group: 'friends',
       memberName: 'friend',
       description: 'Allows you to send and respond to friend requests, as well as list your friends/friend requests.',
-      details: stripIndent`
+      details: stripIndents`
         \`friend add <mention|id>\` sends a friend request to that user.
         \`friend accept <mention|id>\` accepts a friend request from that user.
         \`friend deny/decline <mention|id>\` denies a friend request from that user.
@@ -251,7 +251,7 @@ export default class FriendCommand extends Command {
         return msg.reply(`${apiUser!.name} has no friends`)
       }
 
-      return msg.reply(stripIndent`It appears you don't have any friends yet. ${this.client.emojis.find(
+      return msg.reply(stripIndents`It appears you don't have any friends yet. ${this.client.emojis.find(
         e => e.id === '467808089731760149'
       )}
 
@@ -269,9 +269,11 @@ export default class FriendCommand extends Command {
       })
       .join('\n')
 
-    return msg.reply(stripIndent`
+    return msg.reply(stripIndents`
 
-    Here are ${userId ? apiUser!.name + "'s" : 'your'} friends:\n\n${friendsMapped}
+      Here are ${userId ? apiUser!.name + "'s" : 'your'} friends:
+
+      ${friendsMapped}
 
       ${friends.length === 10 ? 'Only showing the first 10 friends.' : ''}
     `)
@@ -287,7 +289,7 @@ export default class FriendCommand extends Command {
       return msg.reply(`You have no ${argument || 'incoming'} friend requests.`)
     }
 
-    return msg.reply(stripIndent`
+    return msg.reply(stripIndents`
 
     Here are your ${argument || 'incoming'} friend requests:
 

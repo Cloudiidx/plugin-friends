@@ -13,7 +13,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             group: 'friends',
             memberName: 'friend',
             description: 'Allows you to send and respond to friend requests, as well as list your friends/friend requests.',
-            details: common_tags_1.stripIndent `
+            details: common_tags_1.stripIndents `
         \`friend add <mention|id>\` sends a friend request to that user.
         \`friend accept <mention|id>\` accepts a friend request from that user.
         \`friend deny/decline <mention|id>\` denies a friend request from that user.
@@ -185,7 +185,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             if (userId) {
                 return msg.reply(`${apiUser.name} has no friends`);
             }
-            return msg.reply(common_tags_1.stripIndent `It appears you don't have any friends yet. ${this.client.emojis.find(e => e.id === '467808089731760149')}
+            return msg.reply(common_tags_1.stripIndents `It appears you don't have any friends yet. ${this.client.emojis.find(e => e.id === '467808089731760149')}
 
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``);
         }
@@ -197,9 +197,11 @@ class FriendCommand extends discord_js_commando_1.Command {
             return `${i + 1}.) **${name}**  (${friendId})`;
         })
             .join('\n');
-        return msg.reply(common_tags_1.stripIndent `
+        return msg.reply(common_tags_1.stripIndents `
 
-    Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n${friendsMapped}
+      Here are ${userId ? apiUser.name + "'s" : 'your'} friends:
+
+      ${friendsMapped}
 
       ${friends.length === 10 ? 'Only showing the first 10 friends.' : ''}
     `);
@@ -210,7 +212,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         if (!friendRequests || friendRequests.length === 0) {
             return msg.reply(`You have no ${argument || 'incoming'} friend requests.`);
         }
-        return msg.reply(common_tags_1.stripIndent `
+        return msg.reply(common_tags_1.stripIndents `
 
     Here are your ${argument || 'incoming'} friend requests:
 
