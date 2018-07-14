@@ -237,7 +237,7 @@ export default class FriendCommand extends Command {
         const name = f.user.id === id ? f.friend.name : f.user.name
         const friendId = f.user.id === id ? f.friend.id : f.user.id
 
-        return `${i + 1}.) ${name}  (${friendId})`
+        return `\n${i + 1}.) **${name}**  (${friendId})`
       })
       .join('\n')
 
