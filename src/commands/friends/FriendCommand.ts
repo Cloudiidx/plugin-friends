@@ -92,17 +92,15 @@ export default class FriendCommand extends Command {
     msg: CommandMessage,
     user: User | string
   ): Promise<Message | Message[]> {
+    if (msg.author.id === (user instanceof User ? user.id : user)) {
+      return msg.reply('You can\'t send a friend request to yourself. That would be silly.')
+    }
+
     const receiver = await getApiUser(user instanceof User ? user.id : user)
     const sender = await getApiUser(msg.author.id)
 
     if (!receiver || !sender) {
       return msg.reply('This command requires you to specify a user. Please try again.')
-    }
-
-    if (receiver.id === sender.id) {
-      return msg.reply(
-        "You can't send a friend request to yourself. That would be silly."
-      )
     }
 
     const { data: friendRequest } = await axios.post(
@@ -126,44 +124,32 @@ export default class FriendCommand extends Command {
 
   async denyFriendRequest(
     msg: CommandMessage,
-    user: User | string
+    user: User | string | BotUser
   ): Promise<Message | Message[]> {
-    const rejectee = await getApiUser(user instanceof User ? user.id : user)
-    const sender = await getApiUser(msg.author.id)
-
-    if (!rejectee || !sender) {
-      return msg.reply(
-        'This command requires you to specify a user. Please try again.'
-      )
-    }
-
-    if (rejectee.id === sender.id) {
+    if (msg.author.id === (user instanceof User ? user.id : user)) {
       return msg.reply('You can\'t delete a friend request from yourself. That would be silly.')
     }
 
-    const {
-      data: friendRequests
-    }: { data: UserFriendRequest[] } = await axios.get(
-      `${Plugin.config.api.address}/users/${
-        rejectee.id
-      }/friends/requests?token=${Plugin.config.api.token}`
-    )
-
-    for (const friendRequest of friendRequests) {
-      if (friendRequest.user.id === rejectee.id) {
-        axios.delete(
-          `${Plugin.config.api.address}/users/${rejectee.id}/friends/requests/${
-            friendRequest.id
-          }?token=${Plugin.config.api.token}`
-        )
-
-        return msg.reply(
-          `Successfully deleted **${rejectee.name}**'s friend request.`
-        )
-      }
+    if (!(user instanceof User)) {
+      const { data }: { data: BotUser } = await axios.get(`${Plugin.config.api.address}/users/${user}?token=${Plugin.config.api.token}`)
+      user = data
     }
 
-    return msg.reply(`Couldn't find a friend request from or to that user.`)
+    const { data: searchResults }: { data: UserFriendRequest[] } = await axios.get(
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${user.id}&token=${Plugin.config.api.token}`
+    )
+
+    if (searchResults.length > 0 && searchResults[0].user.id === (user.id)) {
+      await axios.delete(
+        `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/${searchResults[0].id}?token=${Plugin.config.api.token}`
+      )
+
+      return msg.reply(
+        `Successfully deleted **${user instanceof User ? user.username : user.name}**'s friend request.`
+      )
+    }
+
+    return msg.reply(`Couldn't find a friend request from that user.`)
   }
 
   async acceptFriendRequest (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
