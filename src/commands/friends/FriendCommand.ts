@@ -181,8 +181,25 @@ export default class FriendCommand extends Command {
   }
 
   async listFriendRequests (msg: CommandMessage, argument: 'incoming' | 'outgoing'): Promise<Message | Message[]> {
+    const { data: friendRequests } = await axios.get(
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument}&token=${Plugin
+        .config.api.token}`
+    )
+
+    if (!friendRequests || friendRequests.length === 0) {
+      return msg.reply(`You have no ${argument} friend requests.`)
+    }
     // TODO: List friend requests using API.
-    return msg.reply('This command is not ready yet.')
+    return msg.reply(
+      `${friendRequests
+        .map(
+          (request: UserFriendRequest, i: number) =>
+            '**' + (i + 1) + '.) ' + request.user.name + '** - ' + request.user.id
+        )
+        .join('\n')}
+
+        You can accept any friend request by typing \`nw friend accept @User\` (or \`nw friend accept <user ID>\` if you aren't currently in the same guild as the other user.)`
+    )
   }
 }
 
