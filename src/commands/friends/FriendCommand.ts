@@ -216,7 +216,7 @@ export default class FriendCommand extends Command {
       }
     }
 
-    const { data: friends } = await axios.get(
+    const { data: friends }: { data: UserFriend[] } = await axios.get(
       `${Plugin.config.api.address}/users/${userId || msg.author.id}/friends/search?token=${Plugin.config.api.token}`
     )
 
@@ -232,17 +232,15 @@ export default class FriendCommand extends Command {
 
     const id = userId || msg.author.id
 
-    const friendsString = friends
-      .map((f: UserFriend, i: number) => {
-        const name = f.user.id === id ? f.friend.name : f.user.name
-        const friendId = f.user.id === id ? f.friend.id : f.user.id
+    const friendsMapped = friends.map((f: UserFriend, i: number) => {
+      const name = f.user.id === id ? f.friend.name : f.user.name
+      const friendId = f.user.id === id ? f.friend.id : f.user.id
 
-        return `\n${i + 1}.) **${name}**  (${friendId})`
-      })
-      .join('\n')
+      return `${i + 1}.) **${name}**  (${friendId})`
+    })
 
     return msg.reply(oneLine`Here are ${userId ? apiUser!.name + "'s" : 'your'} friends:\n\n
-      ${friendsString}
+      ${friendsMapped.join('\n')}
 
       ${friends.length === 10 ? '\n\nOnly showing the first 10 friends.' : ''}
     `)

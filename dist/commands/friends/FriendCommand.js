@@ -174,15 +174,13 @@ class FriendCommand extends discord_js_commando_1.Command {
      Try adding my owner as a friend with \`@Nightwatch friend add 235197207014408203\``);
         }
         const id = userId || msg.author.id;
-        const friendsString = friends
-            .map((f, i) => {
+        const friendsMapped = friends.map((f, i) => {
             const name = f.user.id === id ? f.friend.name : f.user.name;
             const friendId = f.user.id === id ? f.friend.id : f.user.id;
-            return `\n${i + 1}.) **${name}**  (${friendId})`;
-        })
-            .join('\n');
+            return `${i + 1}.) **${name}**  (${friendId})`;
+        });
         return msg.reply(common_tags_1.oneLine `Here are ${userId ? apiUser.name + "'s" : 'your'} friends:\n\n
-      ${friendsString}
+      ${friendsMapped.join('\n')}
 
       ${friends.length === 10 ? '\n\nOnly showing the first 10 friends.' : ''}
     `);
