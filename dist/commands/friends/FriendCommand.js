@@ -149,7 +149,7 @@ class FriendCommand extends discord_js_commando_1.Command {
     }
     async deleteFriend(msg, user) {
         const userId = user instanceof discord_js_1.User ? user.id : user;
-        if (userId) {
+        if (!userId) {
             return msg.reply('You must specify a user. It can be a mention or their user ID.');
         }
         if (userId === msg.author.id) {

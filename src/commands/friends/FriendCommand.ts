@@ -197,7 +197,7 @@ export default class FriendCommand extends Command {
   async deleteFriend (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
     const userId = user instanceof User ? user.id : user
 
-    if (userId) {
+    if (!userId) {
       return msg.reply('You must specify a user. It can be a mention or their user ID.')
     }
 
