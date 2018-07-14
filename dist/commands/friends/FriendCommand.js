@@ -88,6 +88,17 @@ class FriendCommand extends discord_js_commando_1.Command {
             if (!friendRequest) {
                 return msg.reply(`**${receiver.name}** has already sent you a friend request.`);
             }
+            try {
+                const discordUser = await this.client.users.find(u => u.id === receiver.id);
+                const dm = await discordUser.createDM();
+                await dm.send(common_tags_1.stripIndents `**${msg.author.username}** has sent you a friend request!
+
+      You can accept it with \`accept ${msg.author.id}\` or decline it with \`deny ${msg.author.id}\`
+      `);
+            }
+            catch (err) {
+                // swallow, not a big deal
+            }
             return msg.reply(`Sent a friend request to **${receiver.name}**.`);
         }
         catch (err) {

@@ -108,6 +108,17 @@ export default class FriendCommand extends Command {
         return msg.reply(`**${receiver.name}** has already sent you a friend request.`)
       }
 
+      try {
+        const discordUser = await this.client.users.find(u => u.id === receiver.id)
+        const dm = await discordUser.createDM()
+        await dm.send(stripIndents`**${msg.author.username}** has sent you a friend request!
+
+      You can accept it with \`accept ${msg.author.id}\` or decline it with \`deny ${msg.author.id}\`
+      `)
+      } catch (err) {
+        // swallow, not a big deal
+      }
+
       return msg.reply(`Sent a friend request to **${receiver.name}**.`)
     } catch (err) {
       Logger.error(err)
