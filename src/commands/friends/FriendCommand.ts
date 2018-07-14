@@ -128,28 +128,31 @@ export default class FriendCommand extends Command {
 
   async denyFriendRequest(
     msg: CommandMessage,
-    user: User | string | BotUser
+    user: User | string
   ): Promise<Message | Message[]> {
+    let sender: User | BotUser
+
     if (msg.author.id === (user instanceof User ? user.id : user)) {
       return msg.reply('You can\'t delete a friend request from yourself. That would be silly.')
     }
 
     if (!(user instanceof User)) {
-      const { data }: { data: BotUser } = await axios.get(`${Plugin.config.api.address}/users/${user}?token=${Plugin.config.api.token}`)
-      user = data
+      sender = await getApiUser(user)
+    } else {
+      sender = user
     }
 
     const { data: searchResults }: { data: UserFriendRequest[] } = await axios.get(
-      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${user.id}&token=${Plugin.config.api.token}`
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?userId=${sender.id}&token=${Plugin.config.api.token}`
     )
 
-    if (searchResults.length > 0 && searchResults[0].user.id === (user.id)) {
+    if (searchResults.length > 0 && searchResults[0].user.id === sender.id) {
       await axios.delete(
         `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/${searchResults[0].id}?token=${Plugin.config.api.token}`
       )
 
       return msg.reply(
-        `Successfully deleted **${user instanceof User ? user.username : user.name}**'s friend request.`
+        `Successfully deleted **${sender instanceof User ? sender.username : sender.name}**'s friend request.`
       )
     }
 
@@ -232,8 +235,8 @@ export default class FriendCommand extends Command {
   }
 }
 
-async function getApiUser (id: string): Promise<BotUser | undefined> {
-  const { data } = await axios.get(`${Plugin.config.api.address}/users/${id}?token=${Plugin.config.api.token}`)
+async function getApiUser (id: string): Promise<BotUser> {
+  const { data }: { data: BotUser } = await axios.get(`${Plugin.config.api.address}/users/${id}?token=${Plugin.config.api.token}`)
 
   return data
 }
