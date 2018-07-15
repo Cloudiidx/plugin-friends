@@ -75,20 +75,22 @@ class FriendCommand extends discord_js_commando_1.Command {
         const { data: friends } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${id}/friends/?token=${index_1.Plugin.config.api.token}`);
         const { data: friendRequests } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${id}/friends/requests?token=${index_1.Plugin.config.api.token}`);
         const embed = new discord_js_1.MessageEmbed();
-        embed.setAuthor(`:family: ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL());
+        embed.setAuthor(`👪 ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL());
         embed.setFooter(index_1.Plugin.config.botName);
         embed.setTimestamp(new Date());
         embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
-        let friendSummary = `You have ${friends.length} friends.`;
+        let friendSummary = `You have ${friends.length} friends. ${friends.length === 0
+            ? this.client.emojis.find(e => e.id === '467808089731760149')
+            : ''}`;
         if (friends.length > 0) {
-            const acceptedCount = friends.filter(x => !x.user).length;
+            const acceptedCount = friends.filter(x => !x.friend).length;
             if (acceptedCount === friends.length) {
                 friendSummary += `\n\nAll of your friends sent you the friend request. ${acceptedCount >= 10
                     ? 'You are popular!'
                     : ''}`;
             }
             else if (acceptedCount < friends.length) {
-                friendSummary += `\n\n${acceptedCount} sent a friend request to you.
+                friendSummary += common_tags_1.stripIndents `\n\n${acceptedCount} sent a friend request to you.
         You sent a friend request to the other ${friends.length - acceptedCount}.`;
             }
             else {
