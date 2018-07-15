@@ -90,6 +90,7 @@ export default class FriendCommand extends Command {
     embed.setFooter(Plugin.config.botName)
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+    embed.setColor('blue')
 
     const friendSummary = await this.getFriendSummary(id)
     const friendRequestSummary = await this.getFriendRequestSummary(id)
@@ -106,6 +107,7 @@ export default class FriendCommand extends Command {
 
     embed.addField('Friend Summary', friendSummary, true)
     embed.addField('Friend Requests', friendRequestSummary, true)
+    embed.addBlankField()
     embed.addField('Available Actions', availableActions, false)
 
     return msg.channel.send(embed)
@@ -321,6 +323,7 @@ export default class FriendCommand extends Command {
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
     embed.setDescription(friendsMapped)
+    embed.setColor('blue')
 
     return msg.reply(embed)
   }
@@ -356,6 +359,7 @@ export default class FriendCommand extends Command {
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
     embed.setDescription(friendRequestsMapped)
+    embed.setColor('blue')
 
     return msg.reply(embed)
   }
@@ -383,10 +387,10 @@ export default class FriendCommand extends Command {
     const friendSummary =
       friends.length === 0
         ? friendFirstSentence
-        : `${friendFirstSentence}
+        : stripIndents`${friendFirstSentence}
 
-    Requests received: ${friendSummaryObj.received}
-    Requests sent: ${friendSummaryObj.sent}`
+      Requests received: ${friendSummaryObj.received}
+      Requests sent: ${friendSummaryObj.sent}`
 
     return friendSummary
   }
