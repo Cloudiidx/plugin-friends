@@ -326,7 +326,7 @@ export default class FriendCommand extends Command {
       .setDescription(description)
       .setColor('BLUE')
 
-    return msg.reply(embed)
+    return msg.channel.send(embed)
   }
 
   async listFriendRequests (msg: CommandMessage, argument: 'incoming' | 'outgoing'): Promise<Message | Message[]> {
@@ -341,15 +341,13 @@ export default class FriendCommand extends Command {
     }
 
     const friendRequestsMapped = friendRequests
-      .map(
-        (request: UserFriendRequest, i: number) =>
-          '**' +
-          (i + 1) +
-          '.) ' +
-          (filter === 'incoming'
-            ? request.user.name + '** - ' + request.user.id
-            : request.receiver.name + '** - ' + request.receiver.id)
-      )
+      .map((request: UserFriendRequest, i: number) => {
+        const num = `${i + 1}.)`
+
+        return `${num}**${filter === 'incoming'
+          ? request.user.name + '** - ' + request.user.id
+          : request.receiver.name + '** - ' + request.receiver.id}`
+      })
       .join('\n')
 
     const description = stripIndents`${friendRequestsMapped}
@@ -366,7 +364,7 @@ export default class FriendCommand extends Command {
       .setDescription(description)
       .setColor('BLUE')
 
-    return msg.reply(embed)
+    return msg.channel.send(embed)
   }
 
   async getFriendSummary (id: string) {
