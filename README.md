@@ -6,7 +6,7 @@
   * Friend System: The ability to see your own and other user's friends, add friends, remove friends, etc.
 
 ## Commands
-  All commands list start with `<prefix> friend|friends`
+  All commands listed start with `<prefix> friend|friends`
   * `add <mention|id>`: Send a user a friend request.
 
   * `remove|delete <mention|id>`: Remove a user from your friends list.
