@@ -1,5 +1,5 @@
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
-import { Message, User, MessageEmbed } from 'discord.js'
+import { Message, User, MessageEmbed, Emoji } from 'discord.js'
 import { stripIndents } from 'common-tags'
 import { User as BotUser, UserFriendRequest, UserFriend } from '@nightwatch/db'
 import { Logger } from '@nightwatch/util'
@@ -84,14 +84,6 @@ export default class FriendCommand extends Command {
   async displayFriendDashboard (msg: CommandMessage) {
     const id = msg.author.id
 
-    const { data: friends }: { data: UserFriend[] } = await axios.get(
-      `${Plugin.config.api.address}/users/${id}/friends/?token=${Plugin.config.api.token}`
-    )
-
-    const { data: friendRequests }: { data: UserFriendRequest[] } = await axios.get(
-      `${Plugin.config.api.address}/users/${id}/friends/requests?token=${Plugin.config.api.token}`
-    )
-
     const embed = new MessageEmbed()
 
     embed.setAuthor(`👪 ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL())
@@ -99,46 +91,21 @@ export default class FriendCommand extends Command {
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
 
-    let friendSummary = `You have ${friends.length} friends. ${friends.length === 0
-      ? this.client.emojis.find(e => e.id === '467808089731760149')
-      : ''}`
-
-    if (friends.length > 0) {
-      const acceptedCount = friends.filter(x => !x.friend).length
-      if (acceptedCount === friends.length) {
-        friendSummary += `\n\nAll of your friends sent you the friend request. ${acceptedCount >= 10
-          ? 'You are popular!'
-          : ''}`
-      } else if (acceptedCount < friends.length) {
-        friendSummary += stripIndents`\n\n${acceptedCount} sent a friend request to you.
-        You sent a friend request to the other ${friends.length - acceptedCount}.`
-      } else {
-        friendSummary += `\n\nYou sent the friend request to all of your friends.`
-      }
-    }
-
-    embed.addField('Friend Summary', friendSummary, true)
-
-    const incomingRequestCount = friendRequests.filter(request => !request.receiver).length
-
-    const friendRequestsSummary = stripIndents`You have ${incomingRequestCount} pending friend requests.
-    There are ${friendRequests.length - incomingRequestCount} outgoing friend requests waiting for a response.`
-
-    embed.addField('Friend Requests', friendRequestsSummary, true)
-
-    embed.addBlankField()
-
+    const friendSummary = await this.getFriendSummary(id)
+    const friendRequestSummary = await this.getFriendRequestSummary(id)
     const availableActions = stripIndents`
-      * View your friend list with \`nw friend list\`
-      * View other people's friends with \`nw friend list <mention|id>\`
-      * Review pending friend requests with \`nw friend requests\`
-      * See who has a pending friend request from you with \`nw friend requests outgoing\`
-      * Add someone as your friend with \`nw friend add <mention|id>\`
-      * Remove someone from your friend list with \`nw friend remove <mention|id>\`
-      * Accept a friend request with \`nw friend accept <mention|id>\`
-      * Decline a friend request with \`nw friend <decline|deny> <mention|id>\`
+      • View your friend list with \`nw friend list\`
+      • View other people's friends with \`nw friend list <mention|id>\`
+      • Review pending friend requests with \`nw friend requests\`
+      • See who has a pending friend request from you with \`nw friend requests outgoing\`
+      • Add someone as your friend with \`nw friend add <mention|id>\`
+      • Remove someone from your friend list with \`nw friend remove <mention|id>\`
+      • Accept a friend request with \`nw friend accept <mention|id>\`
+      • Decline a friend request with \`nw friend <decline|deny> <mention|id>\`
     `
 
+    embed.addField('Friend Summary', friendSummary, true)
+    embed.addField('Friend Requests', friendRequestSummary, true)
     embed.addField('Available Actions', availableActions, false)
 
     return msg.channel.send(embed)
@@ -347,14 +314,15 @@ export default class FriendCommand extends Command {
       })
       .join('\n')
 
-    return msg.reply(stripIndents`
+    const embed = new MessageEmbed()
 
-      Here are ${userId ? apiUser!.name + "'s" : 'your'} friends:
+    embed.setAuthor(`${userId ? apiUser!.name + "'s" : 'your'} friends:`)
+    embed.setFooter(`${friends.length === 10 ? 'Only showing the first 10 friends.' : ''} | ${Plugin.config.botName}`)
+    embed.setTimestamp(new Date())
+    embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+    embed.setDescription(friendsMapped)
 
-      ${friendsMapped}
-
-      ${friends.length === 10 ? 'Only showing the first 10 friends.' : ''}
-    `)
+    return msg.reply(embed)
   }
 
   async listFriendRequests (msg: CommandMessage, argument: 'incoming' | 'outgoing'): Promise<Message | Message[]> {
@@ -367,11 +335,7 @@ export default class FriendCommand extends Command {
       return msg.reply(`You have no ${argument || 'incoming'} friend requests.`)
     }
 
-    return msg.reply(stripIndents`
-
-    Here are your ${argument || 'incoming'} friend requests:
-
-    ${friendRequests
+    const friendRequestsMapped = friendRequests
       .map(
         (request: UserFriendRequest, i: number) =>
           '**' +
@@ -381,12 +345,69 @@ export default class FriendCommand extends Command {
             ? request.user.name + '** - ' + request.user.id
             : request.receiver.name + '** - ' + request.receiver.id)
       )
-      .join('\n')}
+      .join('\n')
 
-      ${!argument || argument === 'incoming'
-        ? `You can accept any friend request by typing \`nw friend accept @User\` (or \`nw friend accept <user ID>\` if you aren't currently in the same guild as the other user.)`
-        : `If they aren't responding to your request, try sending them a DM to accept it.`}
-      `)
+    const embed = new MessageEmbed()
+    embed.setAuthor(`Your ${argument || 'incoming'} friend requests:`)
+    embed.setFooter(`${!argument || argument === 'incoming'
+      ? `You can accept any friend request by typing \`nw friend accept @User\` or \`nw friend accept <user ID>\``
+      : `If they aren't responding to your request, try sending them a DM to accept it.`} | ${Plugin.config.botName}
+    `)
+    embed.setTimestamp(new Date())
+    embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+    embed.setDescription(friendRequestsMapped)
+
+    return msg.reply(embed)
+  }
+
+  async getFriendSummary (id: string) {
+    const { data: friends }: { data: UserFriend[] } = await axios.get(
+      `${Plugin.config.api.address}/users/${id}/friends/?token=${Plugin.config.api.token}`
+    )
+
+    const friendFirstSentence = `You have ${friends.length} friends. ${friends.length === 0
+      ? this.client.emojis.find((e: Emoji) => e.id === '467808089731760149')
+      : ''}`
+
+    let friendSummaryObj = {
+      sent: 0,
+      received: 0
+    }
+
+    if (friends.length > 0) {
+      const acceptedCount = friends.filter(x => !x.friend).length
+      friendSummaryObj.received = acceptedCount
+      friendSummaryObj.sent = friends.length - acceptedCount
+    }
+
+    const friendSummary =
+      friends.length === 0
+        ? friendFirstSentence
+        : `${friendFirstSentence}
+
+    Requests received: ${friendSummaryObj.received}
+    Requests sent: ${friendSummaryObj.sent}`
+
+    return friendSummary
+  }
+
+  async getFriendRequestSummary (id: string) {
+    const { data: friendRequests }: { data: UserFriendRequest[] } = await axios.get(
+      `${Plugin.config.api.address}/users/${id}/friends/requests?token=${Plugin.config.api.token}`
+    )
+
+    const incomingRequestCount = friendRequests.filter(request => !request.receiver).length
+
+    const friendRequestObj = {
+      incoming: incomingRequestCount,
+      outgoing: friendRequests.length - incomingRequestCount
+    }
+
+    const friendRequestSummary = stripIndents`
+      Incoming: ${friendRequestObj.incoming}
+      Outgoing: ${friendRequestObj.outgoing}`
+
+    return friendRequestSummary
   }
 }
 
