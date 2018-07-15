@@ -102,7 +102,7 @@ export default class FriendCommand extends Command {
     let friendSummary = `You have ${friends.length} friends.`
 
     if (friends.length > 0) {
-      const acceptedCount = friends.filter(x => x.user.id !== id).length
+      const acceptedCount = friends.filter(x => !x.user).length
       if (acceptedCount === friends.length) {
         friendSummary += `\n\nAll of your friends sent you the friend request. ${acceptedCount >= 10
           ? 'You are popular!'
@@ -117,10 +117,10 @@ export default class FriendCommand extends Command {
 
     embed.addField('Friend Summary', friendSummary, true)
 
-    const friendRequestsSummary = stripIndents`You have ${friendRequests.filter(request => request.receiver.id === id)
-      .length} pending friend requests.
-    There are ${friendRequests.filter(request => request.user.id === id)
-      .length} outgoing friend requests waiting for a response.`
+    const incomingRequestCount = friendRequests.filter(request => !request.receiver).length
+
+    const friendRequestsSummary = stripIndents`You have ${incomingRequestCount} pending friend requests.
+    There are ${friendRequests.length - incomingRequestCount} outgoing friend requests waiting for a response.`
 
     embed.addField('Friend Requests', friendRequestsSummary, true)
 
