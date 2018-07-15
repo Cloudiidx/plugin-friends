@@ -72,12 +72,6 @@ class FriendCommand extends discord_js_commando_1.Command {
     }
     async displayFriendDashboard(msg) {
         const id = msg.author.id;
-        const embed = new discord_js_1.MessageEmbed();
-        embed.setAuthor(`👪 ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL());
-        embed.setFooter(index_1.Plugin.config.botName);
-        embed.setTimestamp(new Date());
-        embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
-        embed.setColor('BLUE');
         const friendSummary = await this.getFriendSummary(id);
         const friendRequestSummary = await this.getFriendRequestSummary(id);
         const availableActions = common_tags_1.stripIndents `
@@ -90,10 +84,16 @@ class FriendCommand extends discord_js_commando_1.Command {
       • Accept a friend request with \`nw friend accept <mention|id>\`
       • Decline a friend request with \`nw friend <decline|deny> <mention|id>\`
     `;
-        embed.addField('Friend Summary', friendSummary, true);
-        embed.addField('Friend Requests', friendRequestSummary, true);
-        embed.addBlankField();
-        embed.addField('Available Actions', availableActions, false);
+        const embed = new discord_js_1.MessageEmbed()
+            .setAuthor(`👪 ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL())
+            .setFooter(index_1.Plugin.config.botName)
+            .setTimestamp(new Date())
+            .setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+            .setColor('BLUE')
+            .addField('Friend Summary', friendSummary, true)
+            .addField('Friend Requests', friendRequestSummary, true)
+            .addBlankField()
+            .addField('Available Actions', availableActions, false);
         return msg.channel.send(embed);
     }
     async sendFriendRequest(msg, user) {
@@ -237,39 +237,45 @@ class FriendCommand extends discord_js_commando_1.Command {
             return `${i + 1}.) **${name}**  (${friendId})`;
         })
             .join('\n');
-        const embed = new discord_js_1.MessageEmbed();
-        embed.setAuthor(`${userId ? apiUser.name + "'s" : 'your'} friends:`);
-        embed.setFooter(`${friends.length === 10 ? 'Only showing the first 10 friends.' : ''} | ${index_1.Plugin.config.botName}`);
-        embed.setTimestamp(new Date());
-        embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
-        embed.setDescription(friendsMapped);
-        embed.setColor('BLUE');
+        const description = common_tags_1.stripIndents `${friendsMapped}
+
+      ${friends.length > 10 ? 'Only displaying the first 10 friends' : ''}`;
+        const embed = new discord_js_1.MessageEmbed()
+            .setAuthor(`${userId ? apiUser.name : msg.author.username}'s Friends:`)
+            .setFooter(index_1.Plugin.config.botName)
+            .setTimestamp(new Date())
+            .setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+            .setDescription(description)
+            .setColor('BLUE');
         return msg.reply(embed);
     }
     async listFriendRequests(msg, argument) {
-        const { data: friendRequests } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument ||
-            'incoming'}&token=${index_1.Plugin.config.api.token}`);
+        const filter = !argument || argument === 'incoming' ? 'incoming' : 'outgoing';
+        const { data: friendRequests } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${filter}&token=${index_1.Plugin.config
+            .api.token}`);
         if (!friendRequests || friendRequests.length === 0) {
-            return msg.reply(`You have no ${argument || 'incoming'} friend requests.`);
+            return msg.reply(`You have no ${filter} friend requests.`);
         }
         const friendRequestsMapped = friendRequests
             .map((request, i) => '**' +
             (i + 1) +
             '.) ' +
-            (!argument || argument === 'incoming'
+            (filter === 'incoming'
                 ? request.user.name + '** - ' + request.user.id
                 : request.receiver.name + '** - ' + request.receiver.id))
             .join('\n');
-        const embed = new discord_js_1.MessageEmbed();
-        embed.setAuthor(`Your ${argument || 'incoming'} friend requests:`);
-        embed.setFooter(`${!argument || argument === 'incoming'
+        const description = common_tags_1.stripIndents `${friendRequestsMapped}
+
+      ${filter === 'incoming'
             ? `You can accept any friend request by typing \`nw friend accept @User\` or \`nw friend accept <user ID>\``
-            : `If they aren't responding to your request, try sending them a DM to accept it.`} | ${index_1.Plugin.config.botName}
-    `);
-        embed.setTimestamp(new Date());
-        embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
-        embed.setDescription(friendRequestsMapped);
-        embed.setColor('BLUE');
+            : `If they aren't responding to your request, try sending them a DM to accept it.`}`;
+        const embed = new discord_js_1.MessageEmbed()
+            .setAuthor(`Your ${filter === 'incoming' ? 'Incoming' : 'Outgoing'} Friend Requests:`)
+            .setFooter(index_1.Plugin.config.botName)
+            .setTimestamp(new Date())
+            .setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+            .setDescription(description)
+            .setColor('BLUE');
         return msg.reply(embed);
     }
     async getFriendSummary(id) {
