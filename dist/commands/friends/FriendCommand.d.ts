@@ -13,4 +13,6 @@ export default class FriendCommand extends Command {
     deleteFriend(msg: CommandMessage, user: User | string): Promise<Message | Message[]>;
     listFriends(msg: CommandMessage, user: User | string): Promise<Message | Message[]>;
     listFriendRequests(msg: CommandMessage, argument: 'incoming' | 'outgoing'): Promise<Message | Message[]>;
+    getFriendSummary(id: string): Promise<string>;
+    getFriendRequestSummary(id: string): Promise<string>;
 }
