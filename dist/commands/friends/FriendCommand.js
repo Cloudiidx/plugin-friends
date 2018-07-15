@@ -81,7 +81,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
         let friendSummary = `You have ${friends.length} friends.`;
         if (friends.length > 0) {
-            const acceptedCount = friends.filter(x => x.user.id !== id).length;
+            const acceptedCount = friends.filter(x => !x.user).length;
             if (acceptedCount === friends.length) {
                 friendSummary += `\n\nAll of your friends sent you the friend request. ${acceptedCount >= 10
                     ? 'You are popular!'
@@ -96,10 +96,9 @@ class FriendCommand extends discord_js_commando_1.Command {
             }
         }
         embed.addField('Friend Summary', friendSummary, true);
-        const friendRequestsSummary = common_tags_1.stripIndents `You have ${friendRequests.filter(request => request.receiver.id === id)
-            .length} pending friend requests.
-    There are ${friendRequests.filter(request => request.user.id === id)
-            .length} outgoing friend requests waiting for a response.`;
+        const incomingRequestCount = friendRequests.filter(request => !request.receiver).length;
+        const friendRequestsSummary = common_tags_1.stripIndents `You have ${incomingRequestCount} pending friend requests.
+    There are ${friendRequests.length - incomingRequestCount} outgoing friend requests waiting for a response.`;
         embed.addField('Friend Requests', friendRequestsSummary, true);
         embed.addBlankField();
         const availableActions = common_tags_1.stripIndents `
