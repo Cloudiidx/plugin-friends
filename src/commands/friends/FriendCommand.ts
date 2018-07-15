@@ -1,5 +1,5 @@
 import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
-import { Message, User } from 'discord.js'
+import { Message, User, MessageEmbed } from 'discord.js'
 import { stripIndents } from 'common-tags'
 import { User as BotUser, UserFriendRequest, UserFriend } from '@nightwatch/db'
 import { Logger } from '@nightwatch/util'
@@ -28,7 +28,8 @@ export default class FriendCommand extends Command {
           key: 'action',
           label: 'action',
           prompt: 'Would you like to `add/remove/list` friends, `accept/deny` requests, or list `requests`?\n',
-          type: 'string'
+          type: 'string',
+          default: ''
         },
         {
           key: 'argument',
@@ -45,6 +46,10 @@ export default class FriendCommand extends Command {
     msg: CommandMessage,
     { action, argument }: { action: string; argument: User | string }
   ): Promise<Message | Message[]> {
+    if (!action) {
+      return this.displayFriendDashboard(msg)
+    }
+
     try {
       switch (action.toLowerCase()) {
         case 'add':
@@ -74,6 +79,67 @@ export default class FriendCommand extends Command {
       Logger.error(err)
       return msg.reply('Failed to send friend request.')
     }
+  }
+
+  async displayFriendDashboard (msg: CommandMessage) {
+    const id = msg.author.id
+
+    const { data: friends }: { data: UserFriend[] } = await axios.get(
+      `${Plugin.config.api.address}/users/${id}/friends/?token=${Plugin.config.api.token}`
+    )
+
+    const { data: friendRequests }: { data: UserFriendRequest[] } = await axios.get(
+      `${Plugin.config.api.address}/users/${id}/friends/requests?token=${Plugin.config.api.token}`
+    )
+
+    const embed = new MessageEmbed()
+
+    embed.setAuthor(`:family: ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL())
+    embed.setFooter(Plugin.config.botName)
+    embed.setTimestamp(new Date())
+    embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+
+    let friendSummary = `You have ${friends.length} friends.`
+
+    if (friends.length > 0) {
+      const acceptedCount = friends.filter(x => x.user.id !== id).length
+      if (acceptedCount === friends.length) {
+        friendSummary += `\n\nAll of your friends sent you the friend request. ${acceptedCount >= 10
+          ? 'You are popular!'
+          : ''}`
+      } else if (acceptedCount < friends.length) {
+        friendSummary += `\n\n${acceptedCount} sent a friend request to you.
+        You sent a friend request to the other ${friends.length - acceptedCount}.`
+      } else {
+        friendSummary += `\n\nYou sent the friend request to all of your friends.`
+      }
+    }
+
+    embed.addField('Friend Summary', friendSummary, true)
+
+    const friendRequestsSummary = stripIndents`You have ${friendRequests.filter(request => request.receiver.id === id)
+      .length} pending friend requests.
+    There are ${friendRequests.filter(request => request.user.id === id)
+      .length} outgoing friend requests waiting for a response.`
+
+    embed.addField('Friend Requests', friendRequestsSummary, true)
+
+    embed.addBlankField()
+
+    const availableActions = stripIndents`
+      * View your friend list with \`nw friend list\`
+      * View other people's friends with \`nw friend list <mention|id>\`
+      * Review pending friend requests with \`nw friend requests\`
+      * See who has a pending friend request from you with \`nw friend requests outgoing\`
+      * Add someone as your friend with \`nw friend add <mention|id>\`
+      * Remove someone from your friend list with \`nw friend remove <mention|id>\`
+      * Accept a friend request with \`nw friend accept <mention|id>\`
+      * Decline a friend request with \`nw friend <decline|deny> <mention|id>\`
+    `
+
+    embed.addField('Available Actions', availableActions, false)
+
+    return msg.channel.send(embed)
   }
 
   async sendFriendRequest (msg: CommandMessage, user: User | string): Promise<Message | Message[]> {
