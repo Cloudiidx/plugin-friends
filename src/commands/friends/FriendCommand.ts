@@ -84,14 +84,6 @@ export default class FriendCommand extends Command {
   async displayFriendDashboard (msg: CommandMessage) {
     const id = msg.author.id
 
-    const embed = new MessageEmbed()
-
-    embed.setAuthor(`👪 ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL())
-    embed.setFooter(Plugin.config.botName)
-    embed.setTimestamp(new Date())
-    embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
-    embed.setColor('BLUE')
-
     const friendSummary = await this.getFriendSummary(id)
     const friendRequestSummary = await this.getFriendRequestSummary(id)
     const availableActions = stripIndents`
@@ -105,10 +97,16 @@ export default class FriendCommand extends Command {
       • Decline a friend request with \`nw friend <decline|deny> <mention|id>\`
     `
 
-    embed.addField('Friend Summary', friendSummary, true)
-    embed.addField('Friend Requests', friendRequestSummary, true)
-    embed.addBlankField()
-    embed.addField('Available Actions', availableActions, false)
+    const embed = new MessageEmbed()
+      .setAuthor(`👪 ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL())
+      .setFooter(Plugin.config.botName)
+      .setTimestamp(new Date())
+      .setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+      .setColor('BLUE')
+      .addField('Friend Summary', friendSummary, true)
+      .addField('Friend Requests', friendRequestSummary, true)
+      .addBlankField()
+      .addField('Available Actions', availableActions, false)
 
     return msg.channel.send(embed)
   }
@@ -321,13 +319,12 @@ export default class FriendCommand extends Command {
       ${friends.length > 10 ? 'Only displaying the first 10 friends' : ''}`
 
     const embed = new MessageEmbed()
-
-    embed.setAuthor(`${userId ? apiUser!.name : msg.author.username}'s Friends:`)
-    embed.setFooter(Plugin.config.botName)
-    embed.setTimestamp(new Date())
-    embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
-    embed.setDescription(description)
-    embed.setColor('BLUE')
+      .setAuthor(`${userId ? apiUser!.name : msg.author.username}'s Friends:`)
+      .setFooter(Plugin.config.botName)
+      .setTimestamp(new Date())
+      .setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+      .setDescription(description)
+      .setColor('BLUE')
 
     return msg.reply(embed)
   }
@@ -362,12 +359,12 @@ export default class FriendCommand extends Command {
         : `If they aren't responding to your request, try sending them a DM to accept it.`}`
 
     const embed = new MessageEmbed()
-    embed.setAuthor(`Your ${filter === 'incoming' ? 'Incoming' : 'Outgoing'} Friend Requests:`)
-    embed.setFooter(Plugin.config.botName)
-    embed.setTimestamp(new Date())
-    embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
-    embed.setDescription(description)
-    embed.setColor('BLUE')
+      .setAuthor(`Your ${filter === 'incoming' ? 'Incoming' : 'Outgoing'} Friend Requests:`)
+      .setFooter(Plugin.config.botName)
+      .setTimestamp(new Date())
+      .setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
+      .setDescription(description)
+      .setColor('BLUE')
 
     return msg.reply(embed)
   }
