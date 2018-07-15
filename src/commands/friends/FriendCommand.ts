@@ -94,21 +94,23 @@ export default class FriendCommand extends Command {
 
     const embed = new MessageEmbed()
 
-    embed.setAuthor(`:family: ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL())
+    embed.setAuthor(`👪 ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL())
     embed.setFooter(Plugin.config.botName)
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
 
-    let friendSummary = `You have ${friends.length} friends.`
+    let friendSummary = `You have ${friends.length} friends. ${friends.length === 0
+      ? this.client.emojis.find(e => e.id === '467808089731760149')
+      : ''}`
 
     if (friends.length > 0) {
-      const acceptedCount = friends.filter(x => !x.user).length
+      const acceptedCount = friends.filter(x => !x.friend).length
       if (acceptedCount === friends.length) {
         friendSummary += `\n\nAll of your friends sent you the friend request. ${acceptedCount >= 10
           ? 'You are popular!'
           : ''}`
       } else if (acceptedCount < friends.length) {
-        friendSummary += `\n\n${acceptedCount} sent a friend request to you.
+        friendSummary += stripIndents`\n\n${acceptedCount} sent a friend request to you.
         You sent a friend request to the other ${friends.length - acceptedCount}.`
       } else {
         friendSummary += `\n\nYou sent the friend request to all of your friends.`
