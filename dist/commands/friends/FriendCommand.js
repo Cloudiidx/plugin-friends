@@ -77,6 +77,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         embed.setFooter(index_1.Plugin.config.botName);
         embed.setTimestamp(new Date());
         embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
+        embed.setColor('blue');
         const friendSummary = await this.getFriendSummary(id);
         const friendRequestSummary = await this.getFriendRequestSummary(id);
         const availableActions = common_tags_1.stripIndents `
@@ -91,6 +92,7 @@ class FriendCommand extends discord_js_commando_1.Command {
     `;
         embed.addField('Friend Summary', friendSummary, true);
         embed.addField('Friend Requests', friendRequestSummary, true);
+        embed.addBlankField();
         embed.addField('Available Actions', availableActions, false);
         return msg.channel.send(embed);
     }
@@ -241,6 +243,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         embed.setTimestamp(new Date());
         embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
         embed.setDescription(friendsMapped);
+        embed.setColor('blue');
         return msg.reply(embed);
     }
     async listFriendRequests(msg, argument) {
@@ -266,6 +269,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         embed.setTimestamp(new Date());
         embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
         embed.setDescription(friendRequestsMapped);
+        embed.setColor('blue');
         return msg.reply(embed);
     }
     async getFriendSummary(id) {
@@ -284,10 +288,10 @@ class FriendCommand extends discord_js_commando_1.Command {
         }
         const friendSummary = friends.length === 0
             ? friendFirstSentence
-            : `${friendFirstSentence}
+            : common_tags_1.stripIndents `${friendFirstSentence}
 
-    Requests received: ${friendSummaryObj.received}
-    Requests sent: ${friendSummaryObj.sent}`;
+      Requests received: ${friendSummaryObj.received}
+      Requests sent: ${friendSummaryObj.sent}`;
         return friendSummary;
     }
     async getFriendRequestSummary(id) {
