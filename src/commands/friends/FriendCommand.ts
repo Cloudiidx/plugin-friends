@@ -28,8 +28,7 @@ export default class FriendCommand extends Command {
           key: 'action',
           label: 'action',
           prompt: 'Would you like to `add/remove/list` friends, `accept/deny` requests, or list `requests`?\n',
-          type: 'string',
-          infinite: false
+          type: 'string'
         },
         {
           key: 'argument',
