@@ -77,7 +77,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         embed.setFooter(index_1.Plugin.config.botName);
         embed.setTimestamp(new Date());
         embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
-        embed.setColor('blue');
+        embed.setColor('BLUE');
         const friendSummary = await this.getFriendSummary(id);
         const friendRequestSummary = await this.getFriendRequestSummary(id);
         const availableActions = common_tags_1.stripIndents `
@@ -243,7 +243,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         embed.setTimestamp(new Date());
         embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
         embed.setDescription(friendsMapped);
-        embed.setColor('blue');
+        embed.setColor('BLUE');
         return msg.reply(embed);
     }
     async listFriendRequests(msg, argument) {
@@ -269,7 +269,7 @@ class FriendCommand extends discord_js_commando_1.Command {
         embed.setTimestamp(new Date());
         embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL);
         embed.setDescription(friendRequestsMapped);
-        embed.setColor('blue');
+        embed.setColor('BLUE');
         return msg.reply(embed);
     }
     async getFriendSummary(id) {
