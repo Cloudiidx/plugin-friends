@@ -90,7 +90,7 @@ export default class FriendCommand extends Command {
     embed.setFooter(Plugin.config.botName)
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
-    embed.setColor('blue')
+    embed.setColor('BLUE')
 
     const friendSummary = await this.getFriendSummary(id)
     const friendRequestSummary = await this.getFriendRequestSummary(id)
@@ -323,7 +323,7 @@ export default class FriendCommand extends Command {
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
     embed.setDescription(friendsMapped)
-    embed.setColor('blue')
+    embed.setColor('BLUE')
 
     return msg.reply(embed)
   }
@@ -359,7 +359,7 @@ export default class FriendCommand extends Command {
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
     embed.setDescription(friendRequestsMapped)
-    embed.setColor('blue')
+    embed.setColor('BLUE')
 
     return msg.reply(embed)
   }
