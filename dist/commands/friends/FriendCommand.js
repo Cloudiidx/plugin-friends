@@ -247,7 +247,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             .setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
             .setDescription(description)
             .setColor('BLUE');
-        return msg.reply(embed);
+        return msg.channel.send(embed);
     }
     async listFriendRequests(msg, argument) {
         const filter = !argument || argument === 'incoming' ? 'incoming' : 'outgoing';
@@ -257,12 +257,12 @@ class FriendCommand extends discord_js_commando_1.Command {
             return msg.reply(`You have no ${filter} friend requests.`);
         }
         const friendRequestsMapped = friendRequests
-            .map((request, i) => '**' +
-            (i + 1) +
-            '.) ' +
-            (filter === 'incoming'
+            .map((request, i) => {
+            const num = `${i + 1}.)`;
+            return `${num}**${filter === 'incoming'
                 ? request.user.name + '** - ' + request.user.id
-                : request.receiver.name + '** - ' + request.receiver.id))
+                : request.receiver.name + '** - ' + request.receiver.id}`;
+        })
             .join('\n');
         const description = common_tags_1.stripIndents `${friendRequestsMapped}
 
@@ -276,7 +276,7 @@ class FriendCommand extends discord_js_commando_1.Command {
             .setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
             .setDescription(description)
             .setColor('BLUE');
-        return msg.reply(embed);
+        return msg.channel.send(embed);
     }
     async getFriendSummary(id) {
         const { data: friends } = await axios_1.default.get(`${index_1.Plugin.config.api.address}/users/${id}/friends/?token=${index_1.Plugin.config.api.token}`);
