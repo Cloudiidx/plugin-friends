@@ -316,26 +316,31 @@ export default class FriendCommand extends Command {
       })
       .join('\n')
 
+    const description = stripIndents`${friendsMapped}
+
+      ${friends.length > 10 ? 'Only displaying the first 10 friends' : ''}`
+
     const embed = new MessageEmbed()
 
-    embed.setAuthor(`${userId ? apiUser!.name + "'s" : 'your'} friends:`)
-    embed.setFooter(`${friends.length === 10 ? 'Only showing the first 10 friends.' : ''} | ${Plugin.config.botName}`)
+    embed.setAuthor(`${userId ? apiUser!.name : msg.author.username}'s Friends:`)
+    embed.setFooter(Plugin.config.botName)
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
-    embed.setDescription(friendsMapped)
+    embed.setDescription(description)
     embed.setColor('BLUE')
 
     return msg.reply(embed)
   }
 
   async listFriendRequests (msg: CommandMessage, argument: 'incoming' | 'outgoing'): Promise<Message | Message[]> {
+    const filter = !argument || argument === 'incoming' ? 'incoming' : 'outgoing'
     const { data: friendRequests } = await axios.get(
-      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${argument ||
-        'incoming'}&token=${Plugin.config.api.token}`
+      `${Plugin.config.api.address}/users/${msg.author.id}/friends/requests/search?type=${filter}&token=${Plugin.config
+        .api.token}`
     )
 
     if (!friendRequests || friendRequests.length === 0) {
-      return msg.reply(`You have no ${argument || 'incoming'} friend requests.`)
+      return msg.reply(`You have no ${filter} friend requests.`)
     }
 
     const friendRequestsMapped = friendRequests
@@ -344,21 +349,24 @@ export default class FriendCommand extends Command {
           '**' +
           (i + 1) +
           '.) ' +
-          (!argument || argument === 'incoming'
+          (filter === 'incoming'
             ? request.user.name + '** - ' + request.user.id
             : request.receiver.name + '** - ' + request.receiver.id)
       )
       .join('\n')
 
+    const description = stripIndents`${friendRequestsMapped}
+
+      ${filter === 'incoming'
+        ? `You can accept any friend request by typing \`nw friend accept @User\` or \`nw friend accept <user ID>\``
+        : `If they aren't responding to your request, try sending them a DM to accept it.`}`
+
     const embed = new MessageEmbed()
-    embed.setAuthor(`Your ${argument || 'incoming'} friend requests:`)
-    embed.setFooter(`${!argument || argument === 'incoming'
-      ? `You can accept any friend request by typing \`nw friend accept @User\` or \`nw friend accept <user ID>\``
-      : `If they aren't responding to your request, try sending them a DM to accept it.`} | ${Plugin.config.botName}
-    `)
+    embed.setAuthor(`Your ${filter === 'incoming' ? 'Incoming' : 'Outgoing'} Friend Requests:`)
+    embed.setFooter(Plugin.config.botName)
     embed.setTimestamp(new Date())
     embed.setThumbnail(msg.author.avatarURL() || msg.author.defaultAvatarURL)
-    embed.setDescription(friendRequestsMapped)
+    embed.setDescription(description)
     embed.setColor('BLUE')
 
     return msg.reply(embed)
