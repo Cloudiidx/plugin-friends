@@ -258,10 +258,9 @@ class FriendCommand extends discord_js_commando_1.Command {
         }
         const friendRequestsMapped = friendRequests
             .map((request, i) => {
-            const num = `${i + 1}.)`;
-            return `${num}**${filter === 'incoming'
-                ? request.user.name + '** - ' + request.user.id
-                : request.receiver.name + '** - ' + request.receiver.id}`;
+            return `${i + 1}.) **${filter === 'incoming'
+                ? `${request.user.name}** (${request.user.id})`
+                : `${request.receiver.name}** (${request.receiver.id})`}`;
         })
             .join('\n');
         const description = common_tags_1.stripIndents `${friendRequestsMapped}
