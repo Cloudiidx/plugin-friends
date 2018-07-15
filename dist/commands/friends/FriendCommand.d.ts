@@ -6,6 +6,7 @@ export default class FriendCommand extends Command {
         action: string;
         argument: User | string;
     }): Promise<Message | Message[]>;
+    displayFriendDashboard(msg: CommandMessage): Promise<Message | Message[]>;
     sendFriendRequest(msg: CommandMessage, user: User | string): Promise<Message | Message[]>;
     denyFriendRequest(msg: CommandMessage, user: User | string): Promise<Message | Message[]>;
     acceptFriendRequest(msg: CommandMessage, user: User | string): Promise<Message | Message[]>;
