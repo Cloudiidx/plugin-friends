@@ -429,7 +429,7 @@ async function getApiUser (id: string): Promise<BotUser | undefined> {
 }
 
 function getPrefix (msg: CommandMessage): string {
-  if (!(msg.channel.type === 'text')) {
+  if (msg.channel.type !== 'text') {
     return ''
   }
 
