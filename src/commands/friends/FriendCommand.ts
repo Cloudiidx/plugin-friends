@@ -1,4 +1,4 @@
-import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
+import { Command, CommandMessage, CommandoClient, CommandoGuild } from 'discord.js-commando'
 import { Message, User, MessageEmbed, Emoji } from 'discord.js'
 import { stripIndents } from 'common-tags'
 import { User as BotUser, UserFriendRequest, UserFriend } from '@nightwatch/db'
@@ -83,18 +83,19 @@ export default class FriendCommand extends Command {
 
   async displayFriendDashboard (msg: CommandMessage) {
     const id = msg.author.id
+    const prefix = getPrefix(msg.guild as CommandoGuild)
 
     const friendSummary = await this.getFriendSummary(id)
     const friendRequestSummary = await this.getFriendRequestSummary(id)
     const availableActions = stripIndents`
-      • View your friend list with \`nw friend list\`
-      • View other people's friends with \`nw friend list <mention|id>\`
-      • Review pending friend requests with \`nw friend requests\`
-      • See who has a pending friend request from you with \`nw friend requests outgoing\`
-      • Add someone as your friend with \`nw friend add <mention|id>\`
-      • Remove someone from your friend list with \`nw friend remove <mention|id>\`
-      • Accept a friend request with \`nw friend accept <mention|id>\`
-      • Decline a friend request with \`nw friend <decline|deny> <mention|id>\`
+      • View your friend list with \`${prefix} friend list\`
+      • View other people's friends with \`${prefix} friend list <mention|id>\`
+      • Review pending friend requests with \`${prefix} friend requests\`
+      • See who has a pending friend request from you with \`${prefix} friend requests outgoing\`
+      • Add someone as your friend with \`${prefix} friend add <mention|id>\`
+      • Remove someone from your friend list with \`${prefix} friend remove <mention|id>\`
+      • Accept a friend request with \`${prefix} friend accept <mention|id>\`
+      • Decline a friend request with \`${prefix} friend <decline|deny> <mention|id>\`
     `
 
     const embed = new MessageEmbed()
@@ -425,4 +426,11 @@ async function getApiUser (id: string): Promise<BotUser | undefined> {
     })
 
   return data
+}
+function getPrefix (guild: CommandoGuild): string {
+  if (guild.commandPrefix) {
+    return guild.commandPrefix
+  }
+
+  return Plugin.config.prefix
 }
