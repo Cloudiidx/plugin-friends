@@ -1,4 +1,4 @@
-import { Command, CommandMessage, CommandoClient, CommandoGuild } from 'discord.js-commando'
+import { Command, CommandMessage, CommandoClient } from 'discord.js-commando'
 import { Message, User, MessageEmbed, Emoji } from 'discord.js'
 import { stripIndents } from 'common-tags'
 import { User as BotUser, UserFriendRequest, UserFriend } from '@nightwatch/db'
