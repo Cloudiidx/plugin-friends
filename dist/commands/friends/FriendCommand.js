@@ -72,17 +72,18 @@ class FriendCommand extends discord_js_commando_1.Command {
     }
     async displayFriendDashboard(msg) {
         const id = msg.author.id;
+        const prefix = getPrefix(msg);
         const friendSummary = await this.getFriendSummary(id);
         const friendRequestSummary = await this.getFriendRequestSummary(id);
         const availableActions = common_tags_1.stripIndents `
-      • View your friend list with \`nw friend list\`
-      • View other people's friends with \`nw friend list <mention|id>\`
-      • Review pending friend requests with \`nw friend requests\`
-      • See who has a pending friend request from you with \`nw friend requests outgoing\`
-      • Add someone as your friend with \`nw friend add <mention|id>\`
-      • Remove someone from your friend list with \`nw friend remove <mention|id>\`
-      • Accept a friend request with \`nw friend accept <mention|id>\`
-      • Decline a friend request with \`nw friend <decline|deny> <mention|id>\`
+      • View your friend list with \`${prefix}friend list\`
+      • View other people's friends with \`${prefix}friend list <mention|id>\`
+      • Review pending friend requests with \`${prefix}friend requests\`
+      • See who has a pending friend request from you with \`${prefix}friend requests outgoing\`
+      • Add someone as your friend with \`${prefix}friend add <mention|id>\`
+      • Remove someone from your friend list with \`${prefix}friend remove <mention|id>\`
+      • Accept a friend request with \`${prefix}friend accept <mention|id>\`
+      • Decline a friend request with \`${prefix}friend <decline|deny> <mention|id>\`
     `;
         const embed = new discord_js_1.MessageEmbed()
             .setAuthor(`👪 ${msg.author.username}'s Friend Dashboard`, this.client.user.avatarURL())
@@ -321,5 +322,14 @@ async function getApiUser(id) {
         return { data: undefined };
     });
     return data;
+}
+function getPrefix(msg) {
+    if (msg.channel.type !== 'text') {
+        return '';
+    }
+    if (msg.guild.commandPrefix) {
+        return `${msg.guild.commandPrefix} `;
+    }
+    return `${index_1.Plugin.config.prefix} `;
 }
 //# sourceMappingURL=FriendCommand.js.map
