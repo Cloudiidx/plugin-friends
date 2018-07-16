@@ -83,7 +83,7 @@ export default class FriendCommand extends Command {
 
   async displayFriendDashboard (msg: CommandMessage) {
     const id = msg.author.id
-    const prefix = getPrefix(msg.guild as CommandoGuild)
+    const prefix = getPrefix(msg)
 
     const friendSummary = await this.getFriendSummary(id)
     const friendRequestSummary = await this.getFriendRequestSummary(id)
@@ -427,9 +427,14 @@ async function getApiUser (id: string): Promise<BotUser | undefined> {
 
   return data
 }
-function getPrefix (guild: CommandoGuild): string {
-  if (guild.commandPrefix) {
-    return guild.commandPrefix
+
+function getPrefix (msg: CommandMessage): string {
+  if (!(msg.channel.type === 'text')) {
+    return ''
+  }
+
+  if (msg.guild.commandPrefix) {
+    return msg.guild.commandPrefix
   }
 
   return Plugin.config.prefix
